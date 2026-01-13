@@ -36,16 +36,16 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
         <>
             <ModeSelector selectedMode={selectedMode} onSelectMode={setSelectedMode} />
 
-            <Card className="w-full max-w-4xl mx-auto glass glass-hover border-white/20">
-                <CardHeader className="text-center">
-                    <div className="flex items-center justify-center gap-3 mb-2">
-                        <Sparkles className="h-8 w-8 text-purple-400 float" />
-                        <CardTitle className="text-4xl font-bold bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+            <Card className="w-full max-w-4xl mx-auto glass window-frame scanline">
+                <CardHeader className="text-center pb-6">
+                    <div className="flex items-center justify-center gap-3 mb-3">
+                        <Sparkles className="h-10 w-10 text-cyan-400 float neon-pulse" />
+                        <CardTitle className="text-5xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-magenta-400 bg-clip-text text-transparent neon-text">
                             ClearClause
                         </CardTitle>
-                        <Sparkles className="h-8 w-8 text-blue-400 float" style={{ animationDelay: "1s" }} />
+                        <Sparkles className="h-10 w-10 text-magenta-400 float neon-pulse" style={{ animationDelay: "1s" }} />
                     </div>
-                    <p className="text-white/80 text-sm">AI-gedreven juridische analyse</p>
+                    <p className="text-cyan-300/80 text-sm tracking-wide">AI JURIDISCHE ASSISTENT</p>
                 </CardHeader>
                 <CardContent>
                     <form onSubmit={handleSubmit} className="space-y-6">
@@ -55,7 +55,7 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
                                 value={documentName}
                                 onChange={(e) => setDocumentName(e.target.value)}
                                 placeholder="Document naam (optioneel)"
-                                className="w-full px-4 py-3 bg-white/10 border border-white/20 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent placeholder-white/50 text-white backdrop-blur-sm transition-all hover:bg-white/15"
+                                className="w-full px-4 py-3 bg-black/40 border border-cyan-500/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent placeholder-cyan-300/30 text-cyan-100 backdrop-blur-sm transition-all hover:border-cyan-400/50"
                                 disabled={isLoading}
                             />
                         </div>
@@ -65,7 +65,7 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
                                 value={text}
                                 onChange={(e) => setText(e.target.value)}
                                 placeholder={isReactieBrief ? "Plak hier de originele brief..." : "Plak hier je juridische tekst..."}
-                                className="min-h-[300px] bg-white/10 border-white/20 focus:ring-purple-400 placeholder-white/50 text-white backdrop-blur-sm resize-none transition-all hover:bg-white/15"
+                                className="min-h-[300px] bg-black/40 border-cyan-500/30 focus:ring-cyan-400 placeholder-cyan-300/30 text-cyan-100 backdrop-blur-sm resize-none transition-all hover:border-cyan-400/50 font-mono text-sm"
                                 disabled={isLoading}
                             />
                         </div>
@@ -76,7 +76,7 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
                                     value={context}
                                     onChange={(e) => setContext(e.target.value)}
                                     placeholder="Wat wil je bereiken met je reactie? (bijv. bezwaar maken, opheldering vragen, etc.)"
-                                    className="min-h-[120px] bg-white/10 border-white/20 focus:ring-purple-400 placeholder-white/50 text-white backdrop-blur-sm resize-none transition-all hover:bg-white/15"
+                                    className="min-h-[120px] bg-black/40 border-magenta-500/30 focus:ring-magenta-400 placeholder-magenta-300/30 text-cyan-100 backdrop-blur-sm resize-none transition-all hover:border-magenta-400/50"
                                     disabled={isLoading}
                                 />
                             </div>
@@ -86,21 +86,21 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
                             <Button
                                 type="submit"
                                 disabled={!text.trim() || isLoading}
-                                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white border-0 shadow-lg hover:shadow-xl transition-all hover:scale-105"
+                                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold border-0 shadow-lg shadow-cyan-500/50 hover:shadow-cyan-400/70 transition-all hover:scale-105"
                                 size="lg"
                             >
                                 <FileText className="mr-2 h-5 w-5" />
-                                {isLoading ? "Analyseren..." : "Analyseer"}
+                                {isLoading ? "ANALYSEREN..." : "ANALYSEER"}
                             </Button>
                             <Button
                                 type="button"
                                 variant="outline"
                                 disabled={isLoading}
-                                className="glass glass-hover border-white/30 text-white hover:bg-white/20"
+                                className="glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200"
                                 size="lg"
                             >
                                 <Upload className="mr-2 h-5 w-5" />
-                                Upload PDF
+                                UPLOAD PDF
                             </Button>
                         </div>
                     </form>

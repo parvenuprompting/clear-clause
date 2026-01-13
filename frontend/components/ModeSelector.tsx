@@ -23,6 +23,14 @@ const MODE_ICONS = {
     PenTool
 };
 
+const MODE_COLORS = {
+    algemene_voorwaarden: "cyan",
+    privacy_beleid: "blue",
+    gebruikersvoorwaarden: "magenta",
+    brieven_analyse: "purple",
+    reactie_brief: "pink"
+};
+
 export function ModeSelector({ selectedMode, onSelectMode }: ModeSelectorProps) {
     const modes: AnalysisMode[] = [
         {
@@ -69,28 +77,28 @@ export function ModeSelector({ selectedMode, onSelectMode }: ModeSelectorProps) 
                             key={mode.value}
                             onClick={() => onSelectMode(mode.value)}
                             className={`
-                glass glass-hover cursor-pointer p-6 text-center transition-all duration-300
+                glass cursor-pointer p-5 text-center transition-all duration-300
                 ${isSelected
-                                    ? 'border-purple-400 border-2 shadow-lg shadow-purple-500/50'
-                                    : 'border-white/20 hover:border-white/40'
+                                    ? 'border-cyan-400 border-2 shadow-lg shadow-cyan-500/50 bg-cyan-500/10'
+                                    : 'border-cyan-500/20 hover:border-cyan-400/50'
                                 }
               `}
                         >
-                            <div className="flex flex-col items-center space-y-3">
+                            <div className="flex flex-col items-center space-y-2">
                                 <div className={`
-                  p-4 rounded-full backdrop-blur-sm transition-all
+                  p-3 rounded-full backdrop-blur-sm transition-all
                   ${isSelected
-                                        ? 'bg-purple-400/30 scale-110'
-                                        : 'bg-white/10'
+                                        ? 'bg-cyan-400/20 scale-110 neon-pulse'
+                                        : 'bg-black/30'
                                     }
                 `}>
-                                    <IconComponent className={`h-6 w-6 ${isSelected ? 'text-purple-300' : 'text-white/70'}`} />
+                                    <IconComponent className={`h-6 w-6 ${isSelected ? 'text-cyan-400' : 'text-cyan-300/60'}`} />
                                 </div>
                                 <div>
-                                    <h3 className={`font-semibold text-sm ${isSelected ? 'text-purple-300' : 'text-white'}`}>
+                                    <h3 className={`font-semibold text-xs ${isSelected ? 'text-cyan-300' : 'text-cyan-100/70'}`}>
                                         {mode.naam}
                                     </h3>
-                                    <p className="text-xs text-white/60 mt-1">{mode.beschrijving}</p>
+                                    <p className="text-[10px] text-cyan-300/40 mt-1">{mode.beschrijving}</p>
                                 </div>
                             </div>
                         </Card>

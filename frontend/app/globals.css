@@ -173,7 +173,29 @@
   }
 }
 
-/* Ken Burns Background */
+@keyframes neonPulse {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px currentColor) drop-shadow(0 0 15px currentColor);
+  }
+
+  50% {
+    filter: drop-shadow(0 0 10px currentColor) drop-shadow(0 0 25px currentColor);
+  }
+}
+
+@keyframes scanline {
+  0% {
+    transform: translateY(-100%);
+  }
+
+  100% {
+    transform: translateY(100%);
+  }
+}
+
+/* Dark Neon Background */
 .ken-burns-bg {
   position: fixed;
   top: 0;
@@ -181,7 +203,7 @@
   width: 100%;
   height: 100%;
   z-index: -2;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: radial-gradient(ellipse at bottom, #0d1117 0%, #010409 100%);
   animation: kenBurns 20s ease-in-out infinite;
 }
 
@@ -192,25 +214,32 @@
   width: 100%;
   height: 100%;
   z-index: -1;
-  background: linear-gradient(135deg,
-      rgba(102, 126, 234, 0.3) 0%,
-      rgba(118, 75, 162, 0.3) 100%);
+  background:
+    radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 0, 255, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 40% 20%, rgba(0, 150, 255, 0.06) 0%, transparent 50%);
   backdrop-filter: blur(100px);
 }
 
-/* Glassmorphism Utilities */
+/* Neon Glassmorphism for Dark Mode */
 .glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+  background: rgba(13, 17, 23, 0.7);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(0, 255, 255, 0.2);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.05),
+    0 0 20px rgba(0, 255, 255, 0.1);
 }
 
 .glass-dark {
-  background: rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  background: rgba(1, 4, 9, 0.85);
+  backdrop-filter: blur(20px) saturate(180%);
+  border: 1px solid rgba(255, 0, 255, 0.2);
+  box-shadow:
+    0 8px 32px 0 rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.03),
+    0 0 20px rgba(255, 0, 255, 0.1);
 }
 
 .glass-hover {
@@ -219,8 +248,56 @@
 
 .glass-hover:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.5);
-  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 12px 40px 0 rgba(0, 0, 0, 0.9),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.1),
+    0 0 30px rgba(0, 255, 255, 0.3);
+  border-color: rgba(0, 255, 255, 0.5);
+}
+
+/* Neon Window Frame Effect */
+.window-frame {
+  position: relative;
+  border: 2px solid transparent;
+  background:
+    linear-gradient(rgba(13, 17, 23, 0.9), rgba(13, 17, 23, 0.9)) padding-box,
+    linear-gradient(135deg, #00ffff 0%, #ff00ff 50%, #0096ff 100%) border-box;
+  border-radius: 12px;
+}
+
+.window-frame::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(135deg, #00ffff 0%, #ff00ff 50%, #0096ff 100%);
+  border-radius: 12px;
+  opacity: 0.3;
+  filter: blur(8px);
+  z-index: -1;
+}
+
+/* Scanline Effect */
+.scanline {
+  position: relative;
+  overflow: hidden;
+}
+
+.scanline::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to bottom,
+      transparent,
+      rgba(0, 255, 255, 0.3),
+      transparent);
+  animation: scanline 4s linear infinite;
+  pointer-events: none;
 }
 
 /* Premium Animations */
@@ -232,9 +309,38 @@
   animation: float 3s ease-in-out infinite;
 }
 
+.neon-pulse {
+  animation: neonPulse 2s ease-in-out infinite;
+}
+
+/* Neon Text Glow */
+.neon-text {
+  text-shadow:
+    0 0 10px currentColor,
+    0 0 20px currentColor,
+    0 0 30px currentColor;
+}
+
+/* Cyber Grid Background (optional overlay) */
+.cyber-grid {
+  background-image:
+    linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+}
+
 /* Smooth Transitions */
 * {
   transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
+}
+
+/* Neon Accent Colors */
+:root {
+  --neon-cyan: #00ffff;
+  --neon-magenta: #ff00ff;
+  --neon-blue: #0096ff;
+  --dark-bg: #0d1117;
+  --darker-bg: #010409;
 }
