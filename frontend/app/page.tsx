@@ -8,37 +8,27 @@ export default function Landing() {
     {
       value: "algemene_voorwaarden",
       naam: "Algemene Voorwaarden",
-      beschrijving: "Detecteer Dark Patterns en juridische risico's",
-      icon: FileText,
-      color: "cyan"
+      beschrijving: "Detecteer Dark Patterns en juridische risico's"
     },
     {
       value: "privacy_beleid",
       naam: "Privacy Beleid",
-      beschrijving: "GDPR compliance analyse",
-      icon: Shield,
-      color: "blue"
+      beschrijving: "GDPR compliance analyse"
     },
     {
       value: "gebruikersvoorwaarden",
       naam: "Gebruikersvoorwaarden",
-      beschrijving: "User rights en fairness check",
-      icon: Users,
-      color: "magenta"
+      beschrijving: "User rights en fairness check"
     },
     {
       value: "brieven_analyse",
       naam: "Brieven Analyse",
-      beschrijving: "Sentiment, urgentie en juridische claims",
-      icon: Mail,
-      color: "purple"
+      beschrijving: "Sentiment, urgentie en juridische claims"
     },
     {
       value: "reactie_brief",
       naam: "Reactie Brief Generator",
-      beschrijving: "AI-gedreven reactie brieven",
-      icon: PenTool,
-      color: "pink"
+      beschrijving: "AI-gedreven reactie brieven"
     }
   ];
 

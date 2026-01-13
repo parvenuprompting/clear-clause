@@ -4,9 +4,12 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download } from "lucide-react";
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import { AnalysisPDF } from '@/components/export/AnalysisPDF';
 import type { AnalysisResponse } from "@/lib/api";
 
 interface ResultatenDashboardProps {
@@ -28,6 +31,8 @@ function getSeverityLabel(score: number): string {
 export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
     const privacyPercentage = (data.privacy_score / 10) * 100;
+    const currentDate = new Date().toLocaleDateString('nl-NL');
+    const fileName = `clearclause-analyse-${currentDate}.pdf`;
 
     const handleCopySummary = async () => {
         const summaryText = data.summary.join("\n• ");
@@ -197,5 +202,6 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 </Card>
             </div>
         </div>
+        </TooltipProvider >
     );
 }
