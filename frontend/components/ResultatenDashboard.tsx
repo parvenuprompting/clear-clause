@@ -202,6 +202,5 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 </Card>
             </div>
         </div>
-        </TooltipProvider >
     );
 }
