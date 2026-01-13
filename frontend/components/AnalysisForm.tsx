@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,13 +11,20 @@ import { ModeSelector } from "@/components/ModeSelector";
 interface AnalysisFormProps {
     onSubmit: (text: string, documentName: string, mode: string, context?: string) => void;
     isLoading: boolean;
+    initialMode?: string;
 }
 
-export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
+export function AnalysisForm({ onSubmit, isLoading, initialMode }: AnalysisFormProps) {
     const [text, setText] = useState("");
     const [documentName, setDocumentName] = useState("");
-    const [selectedMode, setSelectedMode] = useState("algemene_voorwaarden");
+    const [selectedMode, setSelectedMode] = useState(initialMode || "algemene_voorwaarden");
     const [context, setContext] = useState("");
+
+    useEffect(() => {
+        if (initialMode) {
+            setSelectedMode(initialMode);
+        }
+    }, [initialMode]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
