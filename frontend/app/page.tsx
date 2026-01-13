@@ -13,14 +13,21 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<AnalysisResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [currentMode, setCurrentMode] = useState("algemene_voorwaarden");
 
-  const handleAnalyze = async (text: string, documentName: string) => {
+  const handleAnalyze = async (text: string, documentName: string, mode: string, context?: string) => {
     setIsLoading(true);
     setError(null);
     setResult(null);
+    setCurrentMode(mode);
 
     try {
-      const response = await analyzeDocument({ text, document_name: documentName });
+      const response = await analyzeDocument({
+        text,
+        document_name: documentName,
+        mode,
+        context
+      });
       setResult(response);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Er is een fout opgetreden");
@@ -76,6 +83,8 @@ export default function Home() {
                   Nieuw Document
                 </Button>
               </div>
+              {/* Voor nu gebruiken we de standaard ResultatenDashboard voor alle modi */}
+              {/* TODO: Implementeer mode-specifieke dashboards */}
               <ResultatenDashboard data={result} />
             </div>
           )}
