@@ -1,14 +1,16 @@
 import os
-from typing import Dict, Any, Optional
+import json
+from typing import Dict, Any, Optional, List
 from openai import OpenAI, RateLimitError, APIConnectionError, APIError
 from .models import (
     AnalysisResponse,
     PrivacyAnalysisResponse,
     GebruikersvoorwaardenResponse,
     LetterAnalysisResponse,
-    ResponseLetterOutput
+    ResponseLetterOutput,
+    RedFlag
 )
-from .utils import count_tokens, chunk_text
+from .utils import count_tokens, split_text
 from .modes import AnalysisMode
 
 # Import prompts
@@ -35,13 +37,158 @@ MODEL_MAP = {
     AnalysisMode.REACTIE_BRIEF: ResponseLetterOutput,
 }
 
+def _analyze_chunk(
+    chunk: str,
+    mode: AnalysisMode,
+    context: Optional[str] = None
+) -> Dict[str, Any]:
+    """Analyseer één chunk van tekst."""
+    system_prompt = PROMPT_MAP[mode]
+    response_model = MODEL_MAP[mode]
+    
+    # Bouw user message
+    if mode == AnalysisMode.REACTIE_BRIEF and context:
+        user_message = f"""ORIGINELE BRIEF:
+{chunk}
+
+CONTEXT/DOEL VAN REACTIE:
+{context}
+
+Genereer een professionele reactie brief op basis van bovenstaande informatie."""
+    else:
+        user_message = f"Analyseer dit document:\n\n{chunk}"
+
+    response = client.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_message}
+        ],
+        response_format={
+            "type": "json_schema",
+            "json_schema": {
+                "name": f"{mode.value}_response",
+                "schema": response_model.model_json_schema()
+            }
+        }
+    )
+    
+    return json.loads(response.choices[0].message.content)
+
+def _merge_results(
+    results: List[Dict[str, Any]],
+    mode: AnalysisMode
+) -> Dict[str, Any]:
+    """
+    Merge resultaten van meerdere chunks.
+    Strategie is mode-afhankelijk.
+    """
+    if not results:
+        return {}
+    
+    if len(results) == 1:
+        return results[0]
+    
+    print(f"[*] Merging {len(results)} chunk results for mode {mode.value}")
+    
+    # Algemene Voorwaarden merge
+    if mode == AnalysisMode.ALGEMENE_VOORWAARDEN:
+        # Merge red flags (remove exact duplicates)
+        all_red_flags = []
+        seen_citations = set()
+        for result in results:
+            for flag in result.get('red_flags', []):
+                citation = flag.get('clause_citation', '')
+                if citation not in seen_citations:
+                    all_red_flags.append(flag)
+                    seen_citations.add(citation)
+        
+        # Average privacy score
+        scores = [r.get('privacy_score', 0) for r in results]
+        avg_score = int(sum(scores) / len(scores))
+        
+        # Combine suggestions (unique)
+        all_suggestions = []
+        seen_suggestions = set()
+        for result in results:
+            for sugg in result.get('suggestions', []):
+                if sugg not in seen_suggestions:
+                    all_suggestions.append(sugg)
+                    seen_suggestions.add(sugg)
+        
+        # Combine summaries and let LLM rewrite
+        all_summaries = []
+        for result in results:
+            all_summaries.extend(result.get('summary', []))
+        
+        # LLM rewrite summary
+        summary_prompt = f"""Herschrijf de volgende punten tot een beknopte samenvatting van maximaal 5 bullets:
+
+{chr(10).join(['- ' + s for s in all_summaries])}
+
+Geef alleen de 5 belangrijkste punten terug."""
+        
+        summary_response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {"role": "system", "content": "Je bent een juridische samenvatter. Maak beknopte punten."},
+                {"role": "user", "content": summary_prompt}
+            ]
+        )
+        
+        summary_text = summary_response.choices[0].message.content
+        final_summary = [line.strip('- ').strip() for line in summary_text.split('\n') if line.strip()][:5]
+        
+        return {
+            "summary": final_summary,
+            "red_flags": all_red_flags,
+            "suggestions": all_suggestions,
+            "privacy_score": avg_score,
+            "privacy_motivatie": f"Gemiddelde score over {len(results)} document secties"
+        }
+    
+    # Privacy Beleid merge
+    elif mode == AnalysisMode.PRIVACY_BELEID:
+        # Merge unique arrays
+        all_data_cats = set()
+        all_third_parties = set()
+        all_user_rights = set()
+        all_compliance_gaps = set()
+        all_recommendations = []
+        
+        for result in results:
+            all_data_cats.update(result.get('data_categories', []))
+            all_third_parties.update(result.get('third_parties', []))
+            all_user_rights.update(result.get('user_rights', []))
+            all_compliance_gaps.update(result.get('compliance_gaps', []))
+            all_recommendations.extend(result.get('recommendations', []))
+        
+        # Average GDPR score
+        scores = [r.get('gdpr_compliance_score', 0) for r in results]
+        avg_score = int(sum(scores) / len(scores))
+        
+        return {
+            "gdpr_compliance_score": avg_score,
+            "data_categories": list(all_data_cats),
+            "third_parties": list(all_third_parties),
+            "user_rights": list(all_user_rights),
+            "recommendations": list(set(all_recommendations)),
+            "compliance_gaps": list(all_compliance_gaps),
+            "retention_policies": results[0].get('retention_policies')
+        }
+    
+    # Voor andere modi: return eerste result (brief moet coherent blijven)
+    else:
+        return results[0]
+
 def analyze_document(
     text: str,
     mode: AnalysisMode = AnalysisMode.ALGEMENE_VOORWAARDEN,
     context: Optional[str] = None
-) -> Dict[str, Any]:
+) -> str:
     """
     Analyseert een document met behulp van GPT-4o en mode-specifieke prompts.
+    Gebruikt map-reduce voor grote documenten.
     
     Args:
         text: De te analyseren tekst
@@ -49,64 +196,34 @@ def analyze_document(
         context: Optionele context (gebruikt voor Reactie Brief mode)
     
     Returns:
-        JSON response volgens het mode-specifieke schema
+        JSON string response volgens het mode-specifieke schema
     """
     # Token check
     token_count = count_tokens(text)
     print(f"[*] Analyse gestart. Mode: {mode.value}, Tokens: {token_count}")
     
-    # Chunking logica voor grote documenten
-    if token_count > 100000:
-        print(f"[!] Document overschrijdt 100k tokens. Chunking wordt toegepast.")
-        chunks = chunk_text(text, max_tokens=90000)
-        
-        if len(chunks) > 2:
-            raise ValueError(
-                f"Document is te groot ({token_count} tokens). "
-                f"Maximum ondersteund: ~180.000 tokens (2 chunks). "
-                f"Overweeg het document te splitsen."
-            )
-        
-        # Voor nu: analyseer alleen eerste chunk met waarschuwing
-        print(f"[!] Waarschuwing: Alleen eerste deel wordt geanalyseerd ({len(chunks)} delen gedetecteerd)")
-        text = chunks[0]
-    
-    if token_count > 120000:
-        raise ValueError("Document is te groot voor de huidige context window.")
-
-    # Selecteer prompt en model op basis van mode
-    system_prompt = PROMPT_MAP[mode]
-    response_model = MODEL_MAP[mode]
-    
-    # Bouw user message
-    if mode == AnalysisMode.REACTIE_BRIEF and context:
-        user_message = f"""ORIGINELE BRIEF:
-{text}
-
-CONTEXT/DOEL VAN REACTIE:
-{context}
-
-Genereer een professionele reactie brief op basis van bovenstaande informatie."""
-    else:
-        user_message = f"Analyseer dit document:\n\n{text}"
-
     try:
-        response = client.chat.completions.create(
-            model="gpt-4o",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_message}
-            ],
-            response_format={
-                "type": "json_schema",
-                "json_schema": {
-                    "name": f"{mode.value}_response",
-                    "schema": response_model.model_json_schema()
-                }
-            }
-        )
+        # Check if chunking needed
+        if token_count > 15000:
+            print(f"[*] Document groot (>{token_count} tokens). Chunking wordt toegepast.")
+            chunks = split_text(text, max_tokens=15000, overlap=500)
+            print(f"[*] Document opgesplitst in {len(chunks)} chunks")
+            
+            # MAP: Analyze each chunk
+            chunk_results = []
+            for i, chunk in enumerate(chunks):
+                print(f"[*] Analyseren chunk {i+1}/{len(chunks)}")
+                result = _analyze_chunk(chunk, mode, context)
+                chunk_results.append(result)
+            
+            # REDUCE: Merge results
+            final_result = _merge_results(chunk_results, mode)
+            return json.dumps(final_result, ensure_ascii=False)
         
-        return response.choices[0].message.content
+        # Single chunk analysis
+        else:
+            result = _analyze_chunk(text, mode, context)
+            return json.dumps(result, ensure_ascii=False)
         
     except RateLimitError as e:
         print(f"[!] Rate limit bereikt: {e}")

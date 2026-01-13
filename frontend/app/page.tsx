@@ -2,7 +2,7 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Shield, Users, Mail, PenTool, Sparkles } from "lucide-react";
+import { FileText, Shield, Users, Mail, PenTool } from "lucide-react";
 import Link from "next/link";
 
 export default function Landing() {
@@ -54,19 +54,16 @@ export default function Landing() {
         {/* Hero Section */}
         <section className="py-20 px-4">
           <div className="container mx-auto text-center">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <Sparkles className="h-16 w-16 text-cyan-400 float neon-pulse" />
-              <h1 className="text-7xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-magenta-400 bg-clip-text text-transparent neon-text">
-                ClearClause
-              </h1>
-              <Sparkles className="h-16 w-16 text-magenta-400 float neon-pulse" style={{ animationDelay: "1s" }} />
+            {/* Professional Logo */}
+            <div className="mb-8 flex justify-center">
+              <img
+                src="/clearclause-logo.png"
+                alt="ClearClause - AI Juridische Assistent Suite"
+                className="h-32 md:h-40 w-auto drop-shadow-2xl"
+              />
             </div>
 
-            <p className="text-2xl text-cyan-300/80 mb-4 tracking-wide">
-              AI JURIDISCHE ASSISTENT SUITE
-            </p>
-
-            <p className="text-cyan-100/60 max-w-2xl mx-auto mb-12">
+            <p className="text-cyan-100/60 max-w-2xl mx-auto mb-12 text-lg">
               Analyseer juridische documenten met geavanceerde AI.
               Kies een analyse modus om te beginnen.
             </p>
