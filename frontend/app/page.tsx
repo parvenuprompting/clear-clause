@@ -1,7 +1,6 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
 export default function Landing() {
@@ -92,12 +91,6 @@ export default function Landing() {
                         <p className="text-sm text-cyan-100/60 group-hover:text-cyan-100/80">
                           {mode.beschrijving}
                         </p>
-
-                        <Button
-                          className="mt-4 bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold"
-                        >
-                          START ANALYSE
-                        </Button>
                       </div>
                     </Card>
                   </Link>
