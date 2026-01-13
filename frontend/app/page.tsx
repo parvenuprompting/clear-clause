@@ -2,7 +2,6 @@
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Shield, Users, Mail, PenTool } from "lucide-react";
 import Link from "next/link";
 
 export default function Landing() {
@@ -82,16 +81,10 @@ export default function Landing() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {modes.map((mode) => {
-                const Icon = mode.icon;
-
                 return (
                   <Link key={mode.value} href={`/analyse?mode=${mode.value}`}>
                     <Card className="glass window-frame cursor-pointer p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/30 group">
                       <div className="flex flex-col items-center space-y-4">
-                        <div className="p-6 rounded-full bg-cyan-400/10 group-hover:bg-cyan-400/20 transition-all neon-pulse">
-                          <Icon className="h-12 w-12 text-cyan-400" />
-                        </div>
-
                         <h3 className="font-bold text-xl text-cyan-300 group-hover:text-cyan-200">
                           {mode.naam}
                         </h3>
