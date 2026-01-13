@@ -48,14 +48,14 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <CheckCircle2 className="h-5 w-5 text-green-600" />
-                            <CardTitle>Samenvatting</CardTitle>
+                            <CheckCircle2 className="h-5 w-5 text-green-400" />
+                            <CardTitle className="text-white">Samenvatting</CardTitle>
                         </div>
                         <Button
                             variant="outline"
                             size="sm"
                             onClick={handleCopySummary}
-                            className="gap-2"
+                            className="gap-2 border-white/20 text-white hover:bg-white/10 hover:text-white"
                         >
                             {copied ? (
                                 <>
@@ -70,14 +70,14 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                             )}
                         </Button>
                     </div>
-                    <CardDescription>De belangrijkste punten uit het document</CardDescription>
+                    <CardDescription className="text-white/70">De belangrijkste punten uit het document</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <ul className="space-y-2">
                         {data.summary.map((item, index) => (
                             <li key={index} className="flex items-start gap-2">
-                                <CheckCircle2 className="h-5 w-5 text-green-600 mt-0.5 flex-shrink-0" />
-                                <span>{item}</span>
+                                <CheckCircle2 className="h-5 w-5 text-green-400 mt-0.5 flex-shrink-0" />
+                                <span className="text-slate-100">{item}</span>
                             </li>
                         ))}
                     </ul>
@@ -87,39 +87,39 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
             {/* Rode Vlaggen */}
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <AlertTriangle className="h-5 w-5 text-red-600" />
+                    <CardTitle className="flex items-center gap-2 text-white">
+                        <AlertTriangle className="h-5 w-5 text-red-400" />
                         Rode Vlaggen ({data.red_flags.length})
                     </CardTitle>
-                    <CardDescription>Gedetecteerde risico's en dark patterns</CardDescription>
+                    <CardDescription className="text-white/70">Gedetecteerde risico's en dark patterns</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {data.red_flags.length === 0 ? (
-                        <p className="text-muted-foreground">Geen significante risico's gedetecteerd.</p>
+                        <p className="text-white/60">Geen significante risico's gedetecteerd.</p>
                     ) : (
                         <Table>
                             <TableHeader>
-                                <TableRow>
-                                    <TableHead>Clausule</TableHead>
-                                    <TableHead>Risico Type</TableHead>
-                                    <TableHead>Uitleg</TableHead>
-                                    <TableHead className="text-right">Ernst</TableHead>
+                                <TableRow className="border-white/10 hover:bg-white/5">
+                                    <TableHead className="text-white/80">Clausule</TableHead>
+                                    <TableHead className="text-white/80">Risico Type</TableHead>
+                                    <TableHead className="text-white/80">Uitleg</TableHead>
+                                    <TableHead className="text-right text-white/80">Ernst</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
                                 {data.red_flags.map((flag, index) => (
-                                    <TableRow key={index}>
-                                        <TableCell className="font-mono text-xs max-w-xs truncate">
+                                    <TableRow key={index} className="border-white/10 hover:bg-white/5">
+                                        <TableCell className="font-mono text-xs max-w-xs truncate text-slate-200">
                                             {flag.clause_citation}
                                         </TableCell>
                                         <TableCell>
-                                            <code className="text-xs bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded">
+                                            <code className="text-xs bg-white/10 text-white px-2 py-1 rounded border border-white/10">
                                                 {flag.risk_type}
                                             </code>
                                         </TableCell>
-                                        <TableCell className="max-w-md">{flag.explanation}</TableCell>
+                                        <TableCell className="max-w-md text-slate-200">{flag.explanation}</TableCell>
                                         <TableCell className="text-right">
-                                            <Badge className={getSeverityColor(flag.severity_score)}>
+                                            <Badge className={getSeverityColor(flag.severity_score) + " text-white border-none"}>
                                                 {flag.severity_score}/10 - {getSeverityLabel(flag.severity_score)}
                                             </Badge>
                                         </TableCell>
@@ -135,20 +135,20 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 {/* Suggesties */}
                 <Card className="glass glass-hover border-white/20">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Lightbulb className="h-5 w-5 text-yellow-600" />
+                        <CardTitle className="flex items-center gap-2 text-white">
+                            <Lightbulb className="h-5 w-5 text-yellow-400" />
                             Suggesties
                         </CardTitle>
-                        <CardDescription>Aanbevelingen voor actie</CardDescription>
+                        <CardDescription className="text-white/70">Aanbevelingen voor actie</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <ol className="space-y-3">
                             {data.suggestions.map((suggestion, index) => (
                                 <li key={index} className="flex items-start gap-3">
-                                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400 text-sm font-semibold">
+                                    <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-yellow-500/20 text-yellow-300 text-sm font-semibold border border-yellow-500/30">
                                         {index + 1}
                                     </span>
-                                    <span className="pt-0.5">{suggestion}</span>
+                                    <span className="pt-0.5 text-slate-100">{suggestion}</span>
                                 </li>
                             ))}
                         </ol>
@@ -158,18 +158,18 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 {/* Privacy Score */}
                 <Card className="glass glass-hover border-white/20">
                     <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                            <Shield className="h-5 w-5 text-blue-600" />
+                        <CardTitle className="flex items-center gap-2 text-white">
+                            <Shield className="h-5 w-5 text-blue-400" />
                             Privacy Score
                         </CardTitle>
-                        <CardDescription>Beoordeling van privacyvriendelijkheid</CardDescription>
+                        <CardDescription className="text-white/70">Beoordeling van privacyvriendelijkheid</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-center">
                             <div className="relative w-32 h-32">
                                 <svg className="w-full h-full" viewBox="0 0 100 100">
                                     <circle
-                                        className="text-gray-200 dark:text-gray-700 stroke-current"
+                                        className="text-white/10 stroke-current"
                                         strokeWidth="10"
                                         cx="50"
                                         cy="50"
@@ -177,7 +177,7 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                                         fill="transparent"
                                     />
                                     <circle
-                                        className="text-blue-600 stroke-current"
+                                        className="text-blue-500 stroke-current drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]"
                                         strokeWidth="10"
                                         strokeLinecap="round"
                                         cx="50"
@@ -190,13 +190,13 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                                     />
                                 </svg>
                                 <div className="absolute inset-0 flex items-center justify-center">
-                                    <span className="text-3xl font-bold">{data.privacy_score}/10</span>
+                                    <span className="text-3xl font-bold text-white">{data.privacy_score}/10</span>
                                 </div>
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Progress value={privacyPercentage} className="h-2" />
-                            <p className="text-sm text-muted-foreground">{data.privacy_motivatie}</p>
+                            <Progress value={privacyPercentage} className="h-2 bg-white/10" indicatorClassName="bg-blue-500" />
+                            <p className="text-sm text-white/70 text-center">{data.privacy_motivatie}</p>
                         </div>
                     </CardContent>
                 </Card>
