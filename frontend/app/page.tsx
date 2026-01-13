@@ -35,41 +35,52 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 py-12 px-4">
-      <div className="container mx-auto">
-        {!isLoading && !result && !error && (
-          <AnalysisForm onSubmit={handleAnalyze} isLoading={isLoading} />
-        )}
+    <>
+      {/* Ken Burns Background */}
+      <div className="ken-burns-bg" />
+      <div className="gradient-overlay" />
 
-        {isLoading && <LoadingState />}
-
-        {error && (
-          <Card className="w-full max-w-4xl mx-auto border-red-200 dark:border-red-800">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-red-600">
-                <AlertCircle className="h-5 w-5" />
-                Fout bij Analyse
-              </CardTitle>
-              <CardDescription>{error}</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={handleReset}>Probeer Opnieuw</Button>
-            </CardContent>
-          </Card>
-        )}
-
-        {result && (
-          <div className="space-y-6">
-            <div className="flex justify-between items-center">
-              <h1 className="text-3xl font-bold">Analyse Resultaten</h1>
-              <Button onClick={handleReset} variant="outline">
-                Nieuw Document Analyseren
-              </Button>
+      <main className="min-h-screen relative py-12 px-4">
+        <div className="container mx-auto">
+          {!isLoading && !result && !error && (
+            <div className="fade-in">
+              <AnalysisForm onSubmit={handleAnalyze} isLoading={isLoading} />
             </div>
-            <ResultatenDashboard data={result} />
-          </div>
-        )}
-      </div>
-    </main>
+          )}
+
+          {isLoading && (
+            <div className="fade-in">
+              <LoadingState />
+            </div>
+          )}
+
+          {error && (
+            <Card className="w-full max-w-4xl mx-auto glass glass-hover border-red-200 dark:border-red-800 fade-in">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-red-600">
+                  <AlertCircle className="h-5 w-5" />
+                  Fout bij Analyse
+                </CardTitle>
+                <CardDescription>{error}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={handleReset}>Probeer Opnieuw</Button>
+              </CardContent>
+            </Card>
+          )}
+
+          {result && (
+            <div className="space-y-6 fade-in">
+              <div className="flex justify-end">
+                <Button onClick={handleReset} variant="outline" className="glass glass-hover">
+                  Nieuw Document
+                </Button>
+              </div>
+              <ResultatenDashboard data={result} />
+            </div>
+          )}
+        </div>
+      </main>
+    </>
   );
 }

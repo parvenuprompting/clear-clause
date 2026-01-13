@@ -39,7 +39,7 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
     return (
         <div className="w-full max-w-7xl mx-auto space-y-6">
             {/* Samenvatting */}
-            <Card>
+            <Card className="glass glass-hover border-white/20">
                 <CardHeader>
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -80,7 +80,7 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
             </Card>
 
             {/* Rode Vlaggen */}
-            <Card>
+            <Card className="glass glass-hover border-white/20">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <AlertTriangle className="h-5 w-5 text-red-600" />
@@ -128,7 +128,7 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Suggesties */}
-                <Card>
+                <Card className="glass glass-hover border-white/20">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Lightbulb className="h-5 w-5 text-yellow-600" />
@@ -151,7 +151,7 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                 </Card>
 
                 {/* Privacy Score */}
-                <Card>
+                <Card className="glass glass-hover border-white/20">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2">
                             <Shield className="h-5 w-5 text-blue-600" />
