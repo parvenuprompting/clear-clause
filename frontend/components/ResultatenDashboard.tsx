@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, Lightbulb, Shield } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check } from "lucide-react";
 import type { AnalysisResponse } from "@/lib/api";
 
 interface ResultatenDashboardProps {
@@ -24,17 +26,45 @@ function getSeverityLabel(score: number): string {
 }
 
 export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
+    const [copied, setCopied] = useState(false);
     const privacyPercentage = (data.privacy_score / 10) * 100;
+
+    const handleCopySummary = async () => {
+        const summaryText = data.summary.join("\n• ");
+        await navigator.clipboard.writeText(`ClearClause Analyse Samenvatting:\n\n• ${summaryText}`);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+    };
 
     return (
         <div className="w-full max-w-7xl mx-auto space-y-6">
             {/* Samenvatting */}
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                        <CheckCircle2 className="h-5 w-5 text-green-600" />
-                        Samenvatting
-                    </CardTitle>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <CheckCircle2 className="h-5 w-5 text-green-600" />
+                            <CardTitle>Samenvatting</CardTitle>
+                        </div>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={handleCopySummary}
+                            className="gap-2"
+                        >
+                            {copied ? (
+                                <>
+                                    <Check className="h-4 w-4" />
+                                    Gekopieerd!
+                                </>
+                            ) : (
+                                <>
+                                    <Copy className="h-4 w-4" />
+                                    Kopieer
+                                </>
+                            )}
+                        </Button>
+                    </div>
                     <CardDescription>De belangrijkste punten uit het document</CardDescription>
                 </CardHeader>
                 <CardContent>

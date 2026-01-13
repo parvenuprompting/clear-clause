@@ -4,13 +4,33 @@ import os
 # Laad de .env variabelen onmiddellijk
 load_dotenv()
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from modules.analysis import analyze_document
 import json
 
 app = FastAPI(title="ClearClause MVP API")
+
+# Request Size Limiting Middleware (max 1MB voor beveiliging)
+MAX_REQUEST_SIZE = 1 * 1024 * 1024  # 1MB in bytes
+
+@app.middleware("http")
+async def limit_upload_size(request: Request, call_next):
+    """
+    Middleware om extreem grote payloads te blokkeren.
+    Voorkomt DoS aanvallen via grote uploads.
+    """
+    if request.method in ["POST", "PUT", "PATCH"]:
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_REQUEST_SIZE:
+            return HTTPException(
+                status_code=413,
+                detail=f"Request te groot. Maximum: {MAX_REQUEST_SIZE / (1024*1024)}MB"
+            )
+    
+    response = await call_next(request)
+    return response
 
 # CORS Configuratie voor Next.js (localhost:3000)
 origins = [
