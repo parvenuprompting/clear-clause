@@ -46,13 +46,16 @@ export default function Landing() {
 
   return (
     <>
-      {/* Ken Burns Background */}
+      {/* Statische zwarte achtergrond voor hero */}
+      <div className="fixed top-0 left-0 right-0 h-screen bg-black z-[-3]" />
+
+      {/* Bewegende gradient achtergrond voor de rest */}
       <div className="ken-burns-bg" />
       <div className="gradient-overlay" />
 
       <main className="min-h-screen relative">
-        {/* Hero Section */}
-        <section className="py-20 px-4">
+        {/* Hero Section - Zwarte achtergrond */}
+        <section className="relative bg-black py-20 px-4 border-b border-cyan-500/20">
           <div className="container mx-auto text-center">
             {/* Professional Logo */}
             <div className="mb-8 flex justify-center">
@@ -70,8 +73,8 @@ export default function Landing() {
           </div>
         </section>
 
-        {/* Modes Grid */}
-        <section className="py-12 px-4">
+        {/* Modes Grid - Bewegende achtergrond met blur */}
+        <section className="relative py-12 px-4 backdrop-blur-sm">
           <div className="container mx-auto">
             <h2 className="text-3xl font-bold text-center text-cyan-300 mb-12">
               KIES EEN ANALYSE MODUS
@@ -112,7 +115,7 @@ export default function Landing() {
         </section>
 
         {/* Footer */}
-        <footer className="py-8 px-4 text-center">
+        <footer className="relative py-8 px-4 text-center backdrop-blur-sm">
           <p className="text-cyan-300/40 text-sm">
             Powered by GPT-4o • Multi-Expert AI Analysis
           </p>
