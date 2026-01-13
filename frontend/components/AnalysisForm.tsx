@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Upload, FileText, Sparkles } from "lucide-react";
 import { ModeSelector } from "@/components/ModeSelector";
 
@@ -33,7 +34,7 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
     const isReactieBrief = selectedMode === "reactie_brief";
 
     return (
-        <>
+        <TooltipProvider delayDuration={300}>
             <ModeSelector selectedMode={selectedMode} onSelectMode={setSelectedMode} />
 
             <Card className="w-full max-w-4xl mx-auto glass window-frame scanline">
@@ -83,29 +84,44 @@ export function AnalysisForm({ onSubmit, isLoading }: AnalysisFormProps) {
                         )}
 
                         <div className="grid grid-cols-2 gap-4">
-                            <Button
-                                type="submit"
-                                disabled={!text.trim() || isLoading}
-                                className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold border-0 shadow-lg shadow-cyan-500/50 hover:shadow-cyan-400/70 transition-all hover:scale-105"
-                                size="lg"
-                            >
-                                <FileText className="mr-2 h-5 w-5" />
-                                {isLoading ? "ANALYSEREN..." : "ANALYSEER"}
-                            </Button>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                disabled={isLoading}
-                                className="glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200"
-                                size="lg"
-                            >
-                                <Upload className="mr-2 h-5 w-5" />
-                                UPLOAD PDF
-                            </Button>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        type="submit"
+                                        disabled={!text.trim() || isLoading}
+                                        className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold border-0 shadow-lg shadow-cyan-500/50 hover:shadow-cyan-400/70 transition-all hover:scale-105"
+                                        size="lg"
+                                    >
+                                        <FileText className="mr-2 h-5 w-5" />
+                                        {isLoading ? "ANALYSEREN..." : "ANALYSEER"}
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Start AI analyse van het document</p>
+                                </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        disabled={isLoading}
+                                        className="glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200"
+                                        size="lg"
+                                    >
+                                        <Upload className="mr-2 h-5 w-5" />
+                                        UPLOAD PDF
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>Upload PDF document (binnenkort beschikbaar)</p>
+                                </TooltipContent>
+                            </Tooltip>
                         </div>
                     </form>
                 </CardContent>
             </Card>
-        </>
+        </TooltipProvider>
     );
 }

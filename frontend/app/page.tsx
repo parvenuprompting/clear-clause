@@ -5,9 +5,10 @@ import { AnalysisForm } from "@/components/AnalysisForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ResultatenDashboard } from "@/components/ResultatenDashboard";
 import { analyzeDocument, type AnalysisResponse } from "@/lib/api";
-import { AlertCircle } from "lucide-react";
+import { AlertCircle, RotateCcw } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +43,7 @@ export default function Home() {
   };
 
   return (
-    <>
+    <TooltipProvider>
       {/* Ken Burns Background */}
       <div className="ken-burns-bg" />
       <div className="gradient-overlay" />
@@ -79,9 +80,17 @@ export default function Home() {
           {result && (
             <div className="space-y-6 fade-in">
               <div className="flex justify-end">
-                <Button onClick={handleReset} variant="outline" className="glass glass-hover">
-                  Nieuw Document
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button onClick={handleReset} variant="outline" className="glass glass-hover">
+                      <RotateCcw className="mr-2 h-4 w-4" />
+                      Nieuw Document
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Reset en analyseer een nieuw document</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
               {/* Voor nu gebruiken we de standaard ResultatenDashboard voor alle modi */}
               {/* TODO: Implementeer mode-specifieke dashboards */}
@@ -90,6 +99,6 @@ export default function Home() {
           )}
         </div>
       </main>
-    </>
+    </TooltipProvider>
   );
 }
