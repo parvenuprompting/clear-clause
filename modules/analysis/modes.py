@@ -11,6 +11,7 @@ class AnalysisMode(Enum):
     BRIEVEN_ANALYSE = "brieven_analyse"
     REACTIE_BRIEF = "reactie_brief"
     ZAKELIJKE_ONDERHANDELINGEN = "zakelijke_onderhandelingen"
+    WEB_DEALS = "web_deals"
 
 # Mode metadata voor UI display
 MODE_METADATA = {
@@ -42,5 +43,10 @@ MODE_METADATA = {
         "naam": "Zakelijke Onderhandelingen",
         "beschrijving": "Deal score, risico's & onderhandelingstips",
         "icon": "Briefcase"
+    },
+    AnalysisMode.WEB_DEALS: {
+        "naam": "Web Deals & Aanbiedingen",
+        "beschrijving": "Check op verborgen kosten & online fairness",
+        "icon": "Tag"
     }
 }

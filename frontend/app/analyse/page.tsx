@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { AnalysisForm } from "@/components/AnalysisForm";
 import { LoadingState } from "@/components/LoadingState";
 import { ResultatenDashboard } from "@/components/ResultatenDashboard";
-import { analyzeDocument, type AnalysisResponse } from "@/lib/api";
+import { analyzeDocument, analyzeFile, type AnalysisResponse } from "@/lib/api";
 import { AlertCircle, RotateCcw, Home } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -69,7 +69,7 @@ export default function AnalysePage() {
         localStorage.setItem("daily_analysis_usage", JSON.stringify(existing));
     };
 
-    const handleAnalyze = async (text: string, documentName: string, mode: string, context?: string) => {
+    const handleAnalyze = async (text: string, documentName: string, mode: string, file?: File, context?: string) => {
         if (!checkRateLimit()) {
             setError(`Je hebt het dagelijkse limiet van ${DAILY_LIMIT} analyses bereikt. Probeer het morgen opnieuw.`);
             return;
@@ -83,14 +83,24 @@ export default function AnalysePage() {
         setAnalyzedText(""); 
 
         try {
-            const response = await analyzeDocument({
-                text,
-                document_name: documentName,
-                mode,
-                context
-            });
+            let response: AnalysisResponse;
+            
+            if (file) {
+                response = await analyzeFile(file, mode, documentName);
+                if (response.extracted_text) {
+                    setAnalyzedText(response.extracted_text);
+                }
+            } else {
+                response = await analyzeDocument({
+                    text,
+                    document_name: documentName,
+                    mode,
+                    context
+                });
+                setAnalyzedText(text);
+            }
+            
             setResult(response);
-            setAnalyzedText(text); // Store successful text for chat context
             incrementRateLimit();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Er is een fout opgetreden");

@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download, Briefcase } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download, Briefcase, Tag } from "lucide-react";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { AnalysisPDF } from '@/components/export/AnalysisPDF';
 import type { AnalysisResponse } from "@/lib/api";
@@ -19,6 +19,7 @@ import { ChatSection } from "./ChatSection";
 interface ResultatenDashboardProps {
     data: AnalysisResponse;
     analyzedText: string;
+    mode?: string;
 }
 
 function getSeverityColor(score: number): string {
@@ -38,9 +39,21 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
     
     // Determine context based on mode
     const isNegotiation = mode === "zakelijke_onderhandelingen";
-    const scoreLabel = isNegotiation ? "Deal Score" : "Privacy Score";
-    const scoreDescription = isNegotiation ? "Commerciële aantrekkelijkheid en balans" : "Beoordeling van privacyvriendelijkheid";
-    const ScoreIcon = isNegotiation ? Briefcase : Shield;
+    const isWebDeal = mode === "web_deals";
+    
+    let scoreLabel = "Privacy Score";
+    let scoreDescription = "Beoordeling van privacyvriendelijkheid";
+    let ScoreIcon = Shield;
+
+    if (isNegotiation) {
+        scoreLabel = "Deal Score";
+        scoreDescription = "Commerciële aantrekkelijkheid en balans";
+        ScoreIcon = Briefcase;
+    } else if (isWebDeal) {
+        scoreLabel = "Consumer Safety Score";
+        scoreDescription = "Beoordeling van transparantie en eerlijkheid";
+        ScoreIcon = Tag;
+    }
     
     const privacyPercentage = (data.privacy_score / 10) * 100;
     const currentDate = new Date().toLocaleDateString('nl-NL');

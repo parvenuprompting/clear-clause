@@ -38,10 +38,14 @@ export default function Landing() {
     {
       value: "demo_intro", // Dummy value, link is custom
       naam: "Demo: Scan ClearClause",
-      beschrijving: "Test de app direct met onze eigen voorwaarden",
       isDemo: true
+    },
+    {
+      value: "web_deals",
+      naam: "Web Deals & Aanbiedingen",
+      beschrijving: "Scant kleine lettertjes van online kortingen & aanbiedingen."
     }
-  ];
+];
 
   return (
     <>

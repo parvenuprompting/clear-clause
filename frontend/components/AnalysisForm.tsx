@@ -9,7 +9,7 @@ import { Upload, FileText, Sparkles } from "lucide-react";
 import { ModeSelector } from "@/components/ModeSelector";
 
 interface AnalysisFormProps {
-    onSubmit: (text: string, documentName: string, mode: string, context?: string) => void;
+    onSubmit: (text: string, documentName: string, mode: string, file?: File, context?: string) => void;
     isLoading: boolean;
     initialMode?: string;
     initialText?: string;
@@ -20,6 +20,7 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
     const [documentName, setDocumentName] = useState("");
     const [selectedMode, setSelectedMode] = useState(initialMode || "algemene_voorwaarden");
     const [context, setContext] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
     useEffect(() => {
         if (initialMode) {
@@ -33,16 +34,30 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
         }
     }, [initialText]);
 
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedFile(file);
+            setDocumentName(file.name);
+            // Als het een file is, resetten we handmatige tekst (optioneel, maar duidelijker)
+            setText(""); 
+        }
+    };
+
+    const clearFile = () => {
+        setSelectedFile(null);
+        setDocumentName("");
+    };
+
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (text.trim()) {
             onSubmit(
                 text,
                 documentName || "Onbekend Document",
                 selectedMode,
+                selectedFile || undefined,
                 selectedMode === "reactie_brief" ? context : undefined
             );
-        }
     };
 
     const isReactieBrief = selectedMode === "reactie_brief";
@@ -111,23 +126,40 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
                                         </TooltipContent>
                                     </Tooltip>
 
-                                    <Tooltip>
-                                        <TooltipTrigger asChild>
+                                    <div className="relative">
+                                        <input
+                                            type="file"
+                                            id="file-upload"
+                                            className="hidden"
+                                            accept=".pdf,image/*"
+                                            onChange={handleFileChange}
+                                            disabled={isLoading}
+                                        />
+                                        <label htmlFor="file-upload" className="w-full">
                                             <Button
                                                 type="button"
                                                 variant="outline"
                                                 disabled={isLoading}
-                                                className="glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200"
+                                                className={`w-full glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200 transition-all ${selectedFile ? 'border-magenta-500 bg-magenta-500/10' : ''}`}
                                                 size="lg"
+                                                asChild
                                             >
-                                                <Upload className="mr-2 h-5 w-5" />
-                                                UPLOAD PDF
+                                                <span>
+                                                    <Upload className="mr-2 h-5 w-5" />
+                                                    {selectedFile ? `BESTAND: ${selectedFile.name.substring(0, 15)}...` : "UPLOAD (PDF/IMAGE)"}
+                                                </span>
                                             </Button>
-                                        </TooltipTrigger>
-                                        <TooltipContent>
-                                            <p>Upload PDF document (binnenkort beschikbaar)</p>
-                                        </TooltipContent>
-                                    </Tooltip>
+                                        </label>
+                                        {selectedFile && (
+                                            <button 
+                                                type="button"
+                                                onClick={clearFile}
+                                                className="absolute -top-2 -right-2 w-5 h-5 bg-magenta-500 text-white rounded-full text-[10px] flex items-center justify-center hover:bg-magenta-400"
+                                            >
+                                                X
+                                            </button>
+                                        )}
+                                    </div>
                                 </div>
                             </form>
                         </CardContent>

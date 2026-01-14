@@ -11,6 +11,8 @@ from typing import Optional
 from modules.analysis import analyze_document
 from modules.analysis.modes import AnalysisMode
 from modules.chat.engine import generate_chat_response, ChatMessage
+from modules.analysis.file_processor import extract_text_from_pdf, extract_text_from_image
+from fastapi import UploadFile, File, Form
 import json
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -133,6 +135,56 @@ async def handle_analysis(request: DocumentRequest, req: Request):
     except Exception as e:
         print(f"[!] Fout: {e}")
         raise HTTPException(status_code=500, detail=f"Interne Server Fout: {str(e)}")
+@app.post("/analyze-file")
+async def handle_file_analysis(
+    file: UploadFile = File(...),
+    mode: str = Form("algemene_voorwaarden"),
+    document_name: Optional[str] = Form(None),
+    req: Request = None
+):
+    """
+    Handle analysis of uploaded files (PDF or Images).
+    """
+    client_ip = req.client.host
+    if not check_rate_limit(client_ip):
+         raise HTTPException(
+            status_code=429,
+            detail=f"Dagelijks limiet bereikt ({DAILY_LIMIT} analyses per 24u)."
+        )
+
+    try:
+        content = await file.read()
+        filename = document_name or file.filename
+        content_type = file.content_type
+
+        print(f"[*] Bestandsanalyse: {filename} ({content_type}) | Mode: {mode}")
+
+        if content_type == "application/pdf":
+            extracted_text = extract_text_from_pdf(content)
+        elif content_type.startswith("image/"):
+            extracted_text = extract_text_from_image(content)
+        else:
+            raise HTTPException(status_code=400, detail="Alleen PDF of afbeeldingen zijn toegestaan.")
+
+        if not extracted_text.strip():
+            raise HTTPException(status_code=400, detail="Geen tekst gevonden in het bestand.")
+
+        # Analyseer de geëxtraheerde tekst
+        result_json = analyze_document(
+            text=extracted_text,
+            mode=AnalysisMode(mode),
+            context=None
+        )
+        
+        # Voeg de geëxtraheerde tekst toe aan de response voor de chat context
+        result = json.loads(result_json)
+        result["extracted_text"] = extracted_text
+        return result
+
+    except Exception as e:
+        print(f"[!] File Error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 @app.post("/chat")
 async def handle_chat(request: ChatRequest):
     try:
