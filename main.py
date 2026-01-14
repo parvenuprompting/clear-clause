@@ -14,24 +14,13 @@ from modules.chat.engine import generate_chat_response, ChatMessage
 from modules.analysis.file_processor import extract_text_from_pdf, extract_text_from_image
 from fastapi import UploadFile, File, Form
 import json
-from datetime import datetime, timedelta
-from collections import defaultdict
+from modules.auth.security import verify_token, TokenData
+from modules.auth.rate_limiter import InMemoryRateLimiter
+from fastapi import Depends
 
-# Simple In-Memory Rate Limiter (voor MVP)
-# In productie: gebruik Redis
+# Rate Limiter
 DAILY_LIMIT = 10
-analysis_usage = defaultdict(list)
-
-def check_rate_limit(ip_address: str) -> bool:
-    now = datetime.now()
-    # Filter requests ouder dan 24 uur updates de lijst
-    analysis_usage[ip_address] = [t for t in analysis_usage[ip_address] if t > now - timedelta(days=1)]
-    
-    if len(analysis_usage[ip_address]) >= DAILY_LIMIT:
-        return False
-    
-    analysis_usage[ip_address].append(now)
-    return True
+rate_limiter = InMemoryRateLimiter(limit=DAILY_LIMIT)
 
 
 app = FastAPI(title="ClearClause Suite API")
@@ -102,9 +91,13 @@ async def get_modes():
     }
 
 @app.post("/analyze")
-async def handle_analysis(request: DocumentRequest, req: Request):
+async def handle_analysis(
+    request: DocumentRequest, 
+    req: Request,
+    token: TokenData = Depends(verify_token)
+):
     client_ip = req.client.host
-    if not check_rate_limit(client_ip):
+    if not rate_limiter.check_limit(client_ip):
          raise HTTPException(
             status_code=429,
             detail=f"Dagelijks limiet bereikt ({DAILY_LIMIT} analyses per 24u). Probeer het morgen opnieuw."
@@ -140,13 +133,14 @@ async def handle_file_analysis(
     file: UploadFile = File(...),
     mode: str = Form("algemene_voorwaarden"),
     document_name: Optional[str] = Form(None),
-    req: Request = None
+    req: Request = None,
+    token: TokenData = Depends(verify_token)
 ):
     """
     Handle analysis of uploaded files (PDF or Images).
     """
     client_ip = req.client.host
-    if not check_rate_limit(client_ip):
+    if not rate_limiter.check_limit(client_ip):
          raise HTTPException(
             status_code=429,
             detail=f"Dagelijks limiet bereikt ({DAILY_LIMIT} analyses per 24u)."
@@ -186,7 +180,7 @@ async def handle_file_analysis(
         raise HTTPException(status_code=500, detail=str(e))
 
 @app.post("/chat")
-async def handle_chat(request: ChatRequest):
+async def handle_chat(request: ChatRequest, token: TokenData = Depends(verify_token)):
     try:
         response = generate_chat_response(
             question=request.question,
@@ -200,4 +194,4 @@ async def handle_chat(request: ChatRequest):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
