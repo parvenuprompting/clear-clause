@@ -28,6 +28,7 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
     
     # 1. Mock Auth voor Development
     if settings.ENVIRONMENT == "development":
+        print(f"[DEBUG] Verifying token: {token} | Env: {settings.ENVIRONMENT}")
         # In dev mode, als er geen token is of het is een dummy waarde, laten we het toe met een waarschuwing
         if not token or token == "mock-token":
             print("[WARN] Development Mode: Mock Auth Active")
