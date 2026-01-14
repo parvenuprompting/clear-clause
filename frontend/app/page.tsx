@@ -42,43 +42,39 @@ export default function Landing() {
       <div className="gradient-overlay" />
 
       <main className="min-h-screen relative">
-        {/* Hero Section - Zwarte achtergrond */}
-        <section className="relative bg-black py-20 px-4 border-b border-cyan-500/20">
-          <div className="container mx-auto text-center">
-            {/* Professional Logo */}
-            <div className="mb-8 flex justify-center">
-              <img
-                src="/clearclause-logo.png"
-                alt="ClearClause - AI Juridische Assistent Suite"
-                className="h-32 md:h-40 w-auto drop-shadow-2xl"
-              />
-            </div>
-
-            <p className="text-cyan-100/60 max-w-2xl mx-auto mb-12 text-lg">
-              Analyseer juridische documenten met geavanceerde AI.
-              Kies een analyse modus om te beginnen.
-            </p>
+        {/* Hero Section - Heldere Video Achtergrond */}
+        <section className="relative h-[400px] md:h-[350px] overflow-hidden flex items-center justify-center border-b border-cyan-500/20 bg-black">
+          {/* Video Background - Full Opacity */}
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="absolute top-0 left-0 w-full h-full object-cover z-0"
+          >
+            <source src="/videos/loading-background.mp4" type="video/mp4" />
+          </video>
+          
+          <div className="container mx-auto text-center relative z-10">
+            {/* Logo en tekst in video nu optimaal zichtbaar zonder overlays */}
           </div>
         </section>
 
-        {/* Modes Grid - Bewegende achtergrond met blur */}
-        <section className="relative py-12 px-4 backdrop-blur-sm">
+        {/* Modes Grid - Minimalist Premium */}
+        <section className="relative py-20 px-4">
           <div className="container mx-auto">
-            <h2 className="text-3xl font-bold text-center text-cyan-300 mb-12">
-              KIES EEN ANALYSE MODUS
-            </h2>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {modes.map((mode) => {
                 return (
                   <Link key={mode.value} href={`/analyse?mode=${mode.value}`}>
-                    <Card className="glass window-frame cursor-pointer p-8 text-center transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/30 group">
-                      <div className="flex flex-col items-center space-y-4">
-                        <h3 className="font-bold text-xl text-cyan-300 group-hover:text-cyan-200">
+                    <Card className="premium-card glass window-frame cursor-pointer p-10 border-white/5 transition-all group">
+                      <div className="flex flex-col items-start text-left space-y-4">
+                        <div className="h-px w-8 bg-cyan-500/50 group-hover:w-full transition-all duration-500" />
+                        <h3 className="font-medium text-2xl tracking-tight text-white/90 group-hover:text-cyan-400">
                           {mode.naam}
                         </h3>
 
-                        <p className="text-sm text-cyan-100/60 group-hover:text-cyan-100/80">
+                        <p className="text-sm leading-relaxed text-white/40 group-hover:text-white/60">
                           {mode.beschrijving}
                         </p>
                       </div>
@@ -91,9 +87,9 @@ export default function Landing() {
         </section>
 
         {/* Footer */}
-        <footer className="relative py-8 px-4 text-center backdrop-blur-sm">
-          <p className="text-cyan-300/40 text-sm">
-            Powered by GPT-4o • Multi-Expert AI Analysis
+        <footer className="relative py-12 px-4 text-center border-t border-white/5">
+          <p className="text-white/20 text-xs tracking-[0.2em] uppercase">
+            Powered by KairOS Multi-Expert AI Analysis
           </p>
         </footer>
       </main>
