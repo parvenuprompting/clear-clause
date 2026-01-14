@@ -52,10 +52,10 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                             <CardTitle className="text-white">Samenvatting</CardTitle>
                         </div>
                         <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
                             onClick={handleCopySummary}
-                            className="gap-2 border-white/20 text-white hover:bg-white/10 hover:text-white"
+                            className="gap-2 border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all"
                         >
                             {copied ? (
                                 <>

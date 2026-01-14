@@ -18,11 +18,21 @@ export default function AnalysePage() {
     const [result, setResult] = useState<AnalysisResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [currentMode, setCurrentMode] = useState(searchParams.get("mode") || "algemene_voorwaarden");
+    const [demoText, setDemoText] = useState("");
 
     useEffect(() => {
         const mode = searchParams.get("mode");
+        const isDemo = searchParams.get("demo") === "true";
+
         if (mode) {
             setCurrentMode(mode);
+        }
+
+        if (isDemo) {
+            fetch("/demo_terms.txt")
+                .then(res => res.text())
+                .then(text => setDemoText(text))
+                .catch(err => console.error("Kon demo tekst niet laden:", err));
         }
     }, [searchParams]);
 
@@ -86,7 +96,12 @@ export default function AnalysePage() {
                 <div className="container mx-auto">
                     {!isLoading && !result && !error && (
                         <div className="fade-in">
-                            <AnalysisForm onSubmit={handleAnalyze} isLoading={isLoading} initialMode={currentMode} />
+                            <AnalysisForm 
+                                onSubmit={handleAnalyze} 
+                                isLoading={isLoading} 
+                                initialMode={currentMode} 
+                                initialText={demoText}
+                            />
                         </div>
                     )}
 

@@ -1,3 +1,5 @@
+![ClearClause Banner](assets/banner.png)
+
 # ClearClause MVP
 
 Een AI-gedreven juridische analyse tool die algemene voorwaarden en privacyverklaringen analyseert met behulp van drie gespecialiseerde persona's: De Jurist, De Ethicus en De Vertaler.
@@ -5,12 +7,14 @@ Een AI-gedreven juridische analyse tool die algemene voorwaarden en privacyverkl
 ## 🏗️ Architectuur
 
 ### Backend (FastAPI + GPT-4o)
+
 - **Model**: `gpt-4o` voor sterke juridische redeneerkracht
 - **Dark Patterns Lexicon**: 11 gedefinieerde risico-patronen
 - **Structured Output**: JSON Schema validatie via Pydantic
 - **Token Management**: Automatische context window checks
 
 ### Frontend (Next.js 14)
+
 - **Framework**: Next.js met App Router
 - **Styling**: Tailwind CSS + Shadcn/UI
 - **Componenten**: Card, Table, Badge, Progress, Textarea
@@ -58,6 +62,7 @@ De frontend draait nu op `http://localhost:3000`
 ## 📋 Features
 
 ### Backend
+
 - ✅ **Lexicon-gebaseerde detectie**: 11 Dark Patterns (forced_continuity, confirmshaming, etc.)
 - ✅ **Drie-Persona Analyse**: Jurist, Ethicus, Vertaler
 - ✅ **Structured JSON Output**: Gevalideerd via Pydantic
@@ -66,6 +71,7 @@ De frontend draait nu op `http://localhost:3000`
 - ✅ **Token Counting**: Preventieve checks voor context window
 
 ### Frontend
+
 - ✅ **Intuïtief Formulier**: Tekst input + document naam
 - ✅ **Loading Visualisatie**: Drie experts animatie
 - ✅ **4-Kolommen Dashboard**:
@@ -79,6 +85,7 @@ De frontend draait nu op `http://localhost:3000`
 ## 🔒 Beveiliging (Kairos Protocol)
 
 Dit project volgt de **Kairos Grondwet**:
+
 - ✅ Geen hardcoded secrets (`.env` voor API keys)
 - ✅ Input validatie via Pydantic
 - ✅ CORS configuratie voor specifieke origins
@@ -87,9 +94,11 @@ Dit project volgt de **Kairos Grondwet**:
 ## 📚 API Endpoints
 
 ### `GET /health`
+
 Health check endpoint.
 
 **Response:**
+
 ```json
 {
   "status": "healthy",
@@ -98,9 +107,11 @@ Health check endpoint.
 ```
 
 ### `POST /analyze`
+
 Analyseer een juridisch document.
 
 **Request:**
+
 ```json
 {
   "text": "De volledige tekst van het document...",
@@ -109,6 +120,7 @@ Analyseer een juridisch document.
 ```
 
 **Response:**
+
 ```json
 {
   "summary": ["Punt 1", "Punt 2", ...],
@@ -145,6 +157,7 @@ Het systeem detecteert de volgende patronen:
 ## 🛠️ Development
 
 ### Backend Structuur
+
 ```
 modules/
 └── analysis/
@@ -156,6 +169,7 @@ modules/
 ```
 
 ### Frontend Structuur
+
 ```
 app/
 ├── page.tsx           # Hoofdpagina

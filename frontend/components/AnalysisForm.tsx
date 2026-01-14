@@ -12,10 +12,11 @@ interface AnalysisFormProps {
     onSubmit: (text: string, documentName: string, mode: string, context?: string) => void;
     isLoading: boolean;
     initialMode?: string;
+    initialText?: string;
 }
 
-export function AnalysisForm({ onSubmit, isLoading, initialMode }: AnalysisFormProps) {
-    const [text, setText] = useState("");
+export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: AnalysisFormProps) {
+    const [text, setText] = useState(initialText || "");
     const [documentName, setDocumentName] = useState("");
     const [selectedMode, setSelectedMode] = useState(initialMode || "algemene_voorwaarden");
     const [context, setContext] = useState("");
@@ -25,6 +26,12 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode }: AnalysisFormP
             setSelectedMode(initialMode);
         }
     }, [initialMode]);
+
+    useEffect(() => {
+        if (initialText) {
+            setText(initialText);
+        }
+    }, [initialText]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();

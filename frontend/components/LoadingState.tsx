@@ -7,17 +7,10 @@ export function LoadingState() {
     return (
         <Card className="w-full max-w-4xl mx-auto glass glass-hover border-white/20 overflow-hidden relative">
             {/* Background Video */}
-            <div className="absolute inset-0 z-0">
-                <video
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover opacity-30 mix-blend-overlay"
-                >
-                    <source src="/videos/loading-background.mp4" type="video/mp4" />
-                </video>
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-[2px]" />
+            {/* Ambient Background with Ken Burns */}
+            <div className="absolute inset-0 z-0 overflow-hidden">
+                <div className="absolute inset-[-20%] w-[140%] h-[140%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-cyan-900/20 via-black to-black animate-[kenBurns_20s_ease-in-out_infinite]" />
+                <div className="absolute inset-0 bg-black/20" />
             </div>
 
             <CardContent className="py-12 relative z-10">

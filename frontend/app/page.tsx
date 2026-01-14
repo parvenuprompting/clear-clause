@@ -29,6 +29,12 @@ export default function Landing() {
       value: "reactie_brief",
       naam: "Reactie Brief Generator",
       beschrijving: "AI-gedreven reactie brieven"
+    },
+    {
+      value: "demo_intro", // Dummy value, link is custom
+      naam: "Demo: Scan ClearClause",
+      beschrijving: "Test de app direct met onze eigen voorwaarden",
+      isDemo: true
     }
   ];
 
@@ -43,7 +49,7 @@ export default function Landing() {
 
       <main className="min-h-screen relative">
         {/* Hero Section - Heldere Video Achtergrond */}
-        <section className="relative h-[400px] md:h-[350px] overflow-hidden flex items-center justify-center border-b border-cyan-500/20 bg-black">
+        <section className="relative h-[300px] md:h-[250px] overflow-hidden flex items-center justify-center border-b border-cyan-500/20 bg-black">
           {/* Video Background - Full Opacity */}
           <video
             autoPlay
@@ -65,11 +71,15 @@ export default function Landing() {
           <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {modes.map((mode) => {
+                const href = (mode as any).isDemo 
+                  ? `/analyse?mode=algemene_voorwaarden&demo=true`
+                  : `/analyse?mode=${mode.value}`;
+                  
                 return (
-                  <Link key={mode.value} href={`/analyse?mode=${mode.value}`}>
-                    <Card className="premium-card glass window-frame cursor-pointer p-10 border-white/5 transition-all group">
+                  <Link key={mode.value} href={href}>
+                    <Card className={`premium-card glass window-frame cursor-pointer p-10 border-white/5 transition-all group ${(mode as any).isDemo ? 'border-cyan-500/50 bg-cyan-900/10' : ''}`}>
                       <div className="flex flex-col items-start text-left space-y-4">
-                        <div className="h-px w-8 bg-cyan-500/50 group-hover:w-full transition-all duration-500" />
+                        <div className={`h-px w-8 ${(mode as any).isDemo ? 'bg-cyan-400 w-16' : 'bg-cyan-500/50'} group-hover:w-full transition-all duration-500`} />
                         <h3 className="font-medium text-2xl tracking-tight text-white/90 group-hover:text-cyan-400">
                           {mode.naam}
                         </h3>

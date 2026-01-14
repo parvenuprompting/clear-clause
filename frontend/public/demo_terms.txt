@@ -1,0 +1,29 @@
+
+ALGEMENE VOORWAARDEN CLEARCLAUSE (VERSION 1.2 - PRIVACY FOCUSED)
+
+1. DEFINITIES
+1.1. "Dienst": De AI-analyse tool van ClearClause.
+1.2. "Gebruiker": De afnemer van de Dienst.
+
+2. DOEL EN GEBRUIK
+2.1. De Dienst is een technologisch hulpmiddel voor tekstanalyse en biedt GEEN juridisch advies.
+2.2. De Dienst is bedoeld ter ondersteuning en vervangt nimmer de controle door een gekwalificeerd jurist.
+
+3. DATA EN PRIVACY (ZERO DATA RETENTION)
+3.1. ClearClause hanteert een strikt 'Zero Data Retention' beleid. Geüploade documenten worden direct na analyse definitief van onze servers verwijderd.
+3.2. Wij slaan GEEN persoonsgegevens of documentinhoud op.
+3.3. Wij gebruiken uw data NOOIT voor het trainen, verbeteren of finetunen van onze AI-modellen. Uw data blijft 100% uw eigendom.
+
+4. AANSPRAKELIJKHEID
+4.1. Gezien de aard van Artificial Intelligence (statistische modellen) kan ClearClause geen garanties geven over de volledigheid of juistheid van de analyses.
+4.2. ClearClause sluit iedere aansprakelijkheid uit voor directe of indirecte schade die ontstaat door beslissingen genomen op basis van de gegenereerde analyses. De Gebruiker erkent dat verificatie door een menselijke expert noodzakelijk is.
+
+5. OPZEGGING EN VERLENGING
+5.1. Abonnementen zijn maandelijks opzegbaar en kunnen op elk moment kosteloos worden stopgezet via het accountportal ("One-Click Cancel").
+5.2. Geen stilzwijgende verlenging voor jaarcontracten zonder expliciete goedkeuring.
+
+6. WIJZIGINGEN
+6.1. Wijzigingen in het beleid worden vooraf gecommuniceerd. Omdat wij geen data bewaren, hebben wijzigingen in het databeleid geen invloed op reeds verwerkte (en verwijderde) documenten.
+
+7. GESCHILLEN
+7.1. Op deze voorwaarden is Nederlands recht van toepassing.
