@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  backend:
+    build: .
+    environment:
+      - HOST=0.0.0.0
+      - ENVIRONMENT=production
+    env_file:
+      - .env
+    networks:
+      - internal_network
+    restart: always
+
+  frontend:
+    build: ./frontend
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost
+    networks:
+      - internal_network
+    restart: always
+
+  gateway:
+    image: nginx:alpine
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - internal_network
+    restart: always
+
+networks:
+  internal_network:
+    driver: bridge
