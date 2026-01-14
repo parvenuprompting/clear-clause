@@ -5,3 +5,5 @@ pydantic
 pydantic-settings
 tiktoken
 python-dotenv
+python-jose[cryptography]
+python-multipart
