@@ -10,6 +10,7 @@ class AnalysisMode(Enum):
     GEBRUIKERSVOORWAARDEN = "gebruikersvoorwaarden"
     BRIEVEN_ANALYSE = "brieven_analyse"
     REACTIE_BRIEF = "reactie_brief"
+    ZAKELIJKE_ONDERHANDELINGEN = "zakelijke_onderhandelingen"
 
 # Mode metadata voor UI display
 MODE_METADATA = {
@@ -36,6 +37,10 @@ MODE_METADATA = {
     AnalysisMode.REACTIE_BRIEF: {
         "naam": "Reactie Brief Generator",
         "beschrijving": "Professionele reactie brief opstellen",
-        "icon": "PenTool"
+    },
+    AnalysisMode.ZAKELIJKE_ONDERHANDELINGEN: {
+        "naam": "Zakelijke Onderhandelingen",
+        "beschrijving": "Deal score, risico's & onderhandelingstips",
+        "icon": "Briefcase"
     }
 }

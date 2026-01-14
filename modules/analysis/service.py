@@ -14,7 +14,7 @@ from .utils import count_tokens, split_text
 from .modes import AnalysisMode
 
 # Import prompts
-from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief
+from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief, zakelijke_onderhandelingen
 
 # Initialiseer OpenAI client
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -26,6 +26,7 @@ PROMPT_MAP = {
     AnalysisMode.GEBRUIKERSVOORWAARDEN: gebruikersvoorwaarden.SYSTEM_PROMPT,
     AnalysisMode.BRIEVEN_ANALYSE: brieven_analyse.SYSTEM_PROMPT,
     AnalysisMode.REACTIE_BRIEF: reactie_brief.SYSTEM_PROMPT,
+    AnalysisMode.ZAKELIJKE_ONDERHANDELINGEN: zakelijke_onderhandelingen.SYSTEM_PROMPT,
 }
 
 # Mode naar Model mapping
@@ -35,6 +36,7 @@ MODEL_MAP = {
     AnalysisMode.GEBRUIKERSVOORWAARDEN: GebruikersvoorwaardenResponse,
     AnalysisMode.BRIEVEN_ANALYSE: LetterAnalysisResponse,
     AnalysisMode.REACTIE_BRIEF: ResponseLetterOutput,
+    AnalysisMode.ZAKELIJKE_ONDERHANDELINGEN: AnalysisResponse,
 }
 
 def _analyze_chunk(
@@ -92,7 +94,8 @@ def _merge_results(
     print(f"[*] Merging {len(results)} chunk results for mode {mode.value}")
     
     # Algemene Voorwaarden merge
-    if mode == AnalysisMode.ALGEMENE_VOORWAARDEN:
+    # Algemene Voorwaarden & Zakelijke Onderhandelingen merge (delen zelfde structuur)
+    if mode in [AnalysisMode.ALGEMENE_VOORWAARDEN, AnalysisMode.ZAKELIJKE_ONDERHANDELINGEN]:
         # Merge red flags (remove exact duplicates)
         all_red_flags = []
         seen_citations = set()

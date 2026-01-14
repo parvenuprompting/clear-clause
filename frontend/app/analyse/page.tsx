@@ -198,7 +198,7 @@ export default function AnalysePage() {
                                 </Tooltip>
                             </div>
 
-                            <ResultatenDashboard data={result} analyzedText={analyzedText} />
+                            <ResultatenDashboard data={result} analyzedText={analyzedText} mode={currentMode} />
                         </div>
                     )}
                 </div>

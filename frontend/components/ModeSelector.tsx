@@ -1,7 +1,7 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { FileText, Shield, Users, Mail, PenTool } from "lucide-react";
+import { FileText, Shield, Users, Mail, PenTool, Briefcase } from "lucide-react";
 
 export interface AnalysisMode {
     value: string;
@@ -20,7 +20,8 @@ const MODE_ICONS = {
     Shield,
     Users,
     Mail,
-    PenTool
+    PenTool,
+    Briefcase
 };
 
 const MODE_COLORS = {
@@ -62,6 +63,12 @@ export function ModeSelector({ selectedMode, onSelectMode }: ModeSelectorProps) 
             naam: "Reactie Brief",
             beschrijving: "AI brief schrijver",
             icon: "PenTool"
+        },
+        {
+            value: "zakelijke_onderhandelingen",
+            naam: "Zakelijke Onderhandelingen",
+            beschrijving: "Deal Score & Risico's",
+            icon: "Briefcase"
         }
     ];
 

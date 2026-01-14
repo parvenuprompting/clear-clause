@@ -1,6 +1,29 @@
-![ClearClause Banner](assets/banner.png)
+<div align="center">
+  <img src="frontend/public/logo-full.png" height="80" alt="ClearClause Logo" />
+  <h1>ClearClause MVP</h1>
+  <p><em>AI-Powered Legal Guardian</em></p>
+</div>
 
-# ClearClause MVP
+<div align="center">
+  <table>
+    <tr>
+      <td align="center"><strong>Home & Modus Selectie</strong></td>
+      <td align="center"><strong>Document Analyse</strong></td>
+    </tr>
+    <tr>
+      <td><img src="frontend/public/docs/home.png" width="400" /></td>
+      <td><img src="frontend/public/docs/input.png" width="400" /></td>
+    </tr>
+    <tr>
+      <td align="center"><strong>Multi-Expert Analyse</strong></td>
+      <td align="center"><strong>Juridisch Dashboard</strong></td>
+    </tr>
+    <tr>
+      <td><img src="frontend/public/docs/loading.png" width="400" /></td>
+      <td><img src="frontend/public/docs/results.png" width="400" /></td>
+    </tr>
+  </table>
+</div>
 
 Een AI-gedreven juridische analyse tool die algemene voorwaarden en privacyverklaringen analyseert met behulp van drie gespecialiseerde persona's: De Jurist, De Ethicus en De Vertaler.
 

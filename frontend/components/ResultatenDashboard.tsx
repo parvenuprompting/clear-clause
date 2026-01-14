@@ -7,10 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download } from "lucide-react";
+import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download, Briefcase } from "lucide-react";
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import { AnalysisPDF } from '@/components/export/AnalysisPDF';
 import type { AnalysisResponse } from "@/lib/api";
+import { ChatSection } from "./ChatSection";
 
 
 
@@ -32,8 +33,15 @@ function getSeverityLabel(score: number): string {
     return "Kritiek";
 }
 
-export function ResultatenDashboard({ data, analyzedText }: ResultatenDashboardProps) {
+export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
+    
+    // Determine context based on mode
+    const isNegotiation = mode === "zakelijke_onderhandelingen";
+    const scoreLabel = isNegotiation ? "Deal Score" : "Privacy Score";
+    const scoreDescription = isNegotiation ? "Commerciële aantrekkelijkheid en balans" : "Beoordeling van privacyvriendelijkheid";
+    const ScoreIcon = isNegotiation ? Briefcase : Shield;
+    
     const privacyPercentage = (data.privacy_score / 10) * 100;
     const currentDate = new Date().toLocaleDateString('nl-NL');
     const fileName = `clearclause-analyse-${currentDate}.pdf`;
@@ -163,10 +171,10 @@ export function ResultatenDashboard({ data, analyzedText }: ResultatenDashboardP
                 <Card className="glass glass-hover border-white/20">
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 text-white">
-                            <Shield className="h-5 w-5 text-blue-400" />
-                            Privacy Score
+                            <ScoreIcon className="h-5 w-5 text-blue-400" />
+                            {scoreLabel}
                         </CardTitle>
-                        <CardDescription className="text-white/70">Beoordeling van privacyvriendelijkheid</CardDescription>
+                        <CardDescription className="text-white/70">{scoreDescription}</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                         <div className="flex items-center justify-center">

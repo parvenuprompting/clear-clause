@@ -16,7 +16,7 @@ export function LoadingState() {
             <CardContent className="py-12 relative z-10">
                 <div className="flex flex-col items-center justify-center space-y-8">
                     <div className="text-center space-y-2">
-                        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-magenta-400">
+                        <h2 className="text-3xl font-bold text-cyan-400">
                             Analyse in uitvoering
                         </h2>
                         <p className="text-white/60 text-sm animate-pulse">
