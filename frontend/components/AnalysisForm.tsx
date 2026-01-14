@@ -140,7 +140,7 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
                                                 type="button"
                                                 variant="outline"
                                                 disabled={isLoading}
-                                                className={`w-full glass border-magenta-500/30 text-magenta-300 hover:bg-magenta-500/10 hover:border-magenta-400 hover:text-magenta-200 transition-all ${selectedFile ? 'border-magenta-500 bg-magenta-500/10' : ''}`}
+                                                className={`w-full glass border-magenta-500/30 text-white hover:bg-magenta-500/10 hover:border-magenta-400 transition-all ${selectedFile ? 'border-magenta-500 bg-magenta-500/10' : ''}`}
                                                 size="lg"
                                                 asChild
                                             >

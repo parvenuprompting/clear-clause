@@ -36,14 +36,14 @@ export default function Landing() {
       beschrijving: "AI-gedreven reactie brieven"
     },
     {
-      value: "demo_intro", // Dummy value, link is custom
-      naam: "Demo: Scan ClearClause",
-      isDemo: true
-    },
-    {
       value: "web_deals",
       naam: "Web Deals & Aanbiedingen",
       beschrijving: "Scant kleine lettertjes van online kortingen & aanbiedingen."
+    },
+    {
+      value: "demo_intro", // Dummy value, link is custom
+      naam: "Demo: Scan ClearClause",
+      isDemo: true
     }
 ];
 
