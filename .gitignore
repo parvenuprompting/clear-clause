@@ -1,7 +1,7 @@
 # Kairos Secrets
 .env
 .env.local
-.kairos/secrets/
+.kairos/
 
 # Python
 __pycache__/
