@@ -19,6 +19,9 @@ export default function AnalysePage() {
     const [error, setError] = useState<string | null>(null);
     const [currentMode, setCurrentMode] = useState(searchParams.get("mode") || "algemene_voorwaarden");
     const [demoText, setDemoText] = useState("");
+    const [analyzedText, setAnalyzedText] = useState("");
+
+    const DAILY_LIMIT = 10;
 
     useEffect(() => {
         const mode = searchParams.get("mode");
@@ -36,11 +39,48 @@ export default function AnalysePage() {
         }
     }, [searchParams]);
 
+    const checkRateLimit = (): boolean => {
+        const today = new Date().toDateString();
+        const usageData = localStorage.getItem("daily_analysis_usage");
+        
+        let existing = usageData ? JSON.parse(usageData) : { date: today, count: 0 };
+        
+        if (existing.date !== today) {
+            existing = { date: today, count: 0 };
+        }
+
+        if (existing.count >= DAILY_LIMIT) {
+            return false;
+        }
+
+        return true;
+    };
+
+    const incrementRateLimit = () => {
+        const today = new Date().toDateString();
+        const usageData = localStorage.getItem("daily_analysis_usage");
+        let existing = usageData ? JSON.parse(usageData) : { date: today, count: 0 };
+        
+        if (existing.date !== today) {
+            existing = { date: today, count: 0 };
+        }
+        
+        existing.count += 1;
+        localStorage.setItem("daily_analysis_usage", JSON.stringify(existing));
+    };
+
     const handleAnalyze = async (text: string, documentName: string, mode: string, context?: string) => {
+        if (!checkRateLimit()) {
+            setError(`Je hebt het dagelijkse limiet van ${DAILY_LIMIT} analyses bereikt. Probeer het morgen opnieuw.`);
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
         setResult(null);
         setCurrentMode(mode);
+        // Reset analyzed text on new analysis start
+        setAnalyzedText(""); 
 
         try {
             const response = await analyzeDocument({
@@ -50,6 +90,8 @@ export default function AnalysePage() {
                 context
             });
             setResult(response);
+            setAnalyzedText(text); // Store successful text for chat context
+            incrementRateLimit();
         } catch (err) {
             setError(err instanceof Error ? err.message : "Er is een fout opgetreden");
         } finally {
@@ -72,15 +114,13 @@ export default function AnalysePage() {
             <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-cyan-500/20">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <Link href="/">
-                        <h1 className="text-xl font-bold bg-gradient-to-r from-cyan-400 to-magenta-400 bg-clip-text text-transparent cursor-pointer hover:scale-105 transition-transform">
-                            ClearClause
-                        </h1>
+                        <img src="/logo-full.png" alt="ClearClause Logo" className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
                     </Link>
 
                     <Tooltip>
                         <TooltipTrigger asChild>
                             <Link href="/">
-                                <Button variant="outline" className="glass border-cyan-500/30 text-cyan-300 hover:bg-cyan-500/10">
+                                <Button variant="ghost" className="border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all shadow-sm">
                                     <Home className="h-4 w-4" />
                                 </Button>
                             </Link>
@@ -134,7 +174,7 @@ export default function AnalysePage() {
                                 <Tooltip>
                                     <TooltipTrigger asChild>
                                         <Link href="/">
-                                            <Button variant="outline" className="glass glass-hover">
+                                            <Button variant="ghost" className="border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all">
                                                 <Home className="mr-2 h-4 w-4" />
                                                 Home
                                             </Button>
@@ -147,7 +187,7 @@ export default function AnalysePage() {
 
                                 <Tooltip>
                                     <TooltipTrigger asChild>
-                                        <Button onClick={handleReset} variant="outline" className="glass glass-hover">
+                                        <Button onClick={handleReset} variant="ghost" className="border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all">
                                             <RotateCcw className="mr-2 h-4 w-4" />
                                             Nieuw Document
                                         </Button>
@@ -158,7 +198,7 @@ export default function AnalysePage() {
                                 </Tooltip>
                             </div>
 
-                            <ResultatenDashboard data={result} />
+                            <ResultatenDashboard data={result} analyzedText={analyzedText} />
                         </div>
                     )}
                 </div>

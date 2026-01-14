@@ -12,8 +12,12 @@ import { PDFDownloadLink } from '@react-pdf/renderer';
 import { AnalysisPDF } from '@/components/export/AnalysisPDF';
 import type { AnalysisResponse } from "@/lib/api";
 
+
+
+
 interface ResultatenDashboardProps {
     data: AnalysisResponse;
+    analyzedText: string;
 }
 
 function getSeverityColor(score: number): string {
@@ -28,7 +32,7 @@ function getSeverityLabel(score: number): string {
     return "Kritiek";
 }
 
-export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
+export function ResultatenDashboard({ data, analyzedText }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
     const privacyPercentage = (data.privacy_score / 10) * 100;
     const currentDate = new Date().toLocaleDateString('nl-NL');
@@ -102,8 +106,8 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                                 <TableRow className="border-white/10 hover:bg-white/5">
                                     <TableHead className="text-white/80">Clausule</TableHead>
                                     <TableHead className="text-white/80">Risico Type</TableHead>
-                                    <TableHead className="text-white/80">Uitleg</TableHead>
-                                    <TableHead className="text-right text-white/80">Ernst</TableHead>
+                                    <TableHead className="text-white/80 w-full">Uitleg</TableHead>
+                                    <TableHead className="text-right text-white/80 w-[150px] min-w-[150px]">Ernst</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -117,8 +121,8 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                                                 {flag.risk_type}
                                             </code>
                                         </TableCell>
-                                        <TableCell className="max-w-md text-slate-200">{flag.explanation}</TableCell>
-                                        <TableCell className="text-right">
+                                        <TableCell className="text-slate-200 break-words whitespace-normal min-w-[300px]">{flag.explanation}</TableCell>
+                                        <TableCell className="text-right whitespace-nowrap w-[150px] min-w-[150px]">
                                             <Badge className={getSeverityColor(flag.severity_score) + " text-white border-none"}>
                                                 {flag.severity_score}/10 - {getSeverityLabel(flag.severity_score)}
                                             </Badge>
@@ -195,12 +199,14 @@ export function ResultatenDashboard({ data }: ResultatenDashboardProps) {
                             </div>
                         </div>
                         <div className="space-y-2">
-                            <Progress value={privacyPercentage} className="h-2 bg-white/10" indicatorClassName="bg-blue-500" />
+                            <Progress value={privacyPercentage} className="h-2 bg-white/10" indicatorColor="bg-blue-500" />
                             <p className="text-sm text-white/70 text-center">{data.privacy_motivatie}</p>
                         </div>
                     </CardContent>
                 </Card>
             </div>
+
+            <ChatSection contextText={analyzedText} />
         </div>
     );
 }

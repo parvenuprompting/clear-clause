@@ -48,26 +48,20 @@ export default function Landing() {
       <div className="gradient-overlay" />
 
       <main className="min-h-screen relative">
-        {/* Hero Section - Heldere Video Achtergrond */}
-        <section className="relative h-[300px] md:h-[250px] overflow-hidden flex items-center justify-center border-b border-cyan-500/20 bg-black">
-          {/* Video Background - Full Opacity */}
-          <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            className="absolute top-0 left-0 w-full h-full object-cover z-0"
-          >
-            <source src="/videos/loading-background.mp4" type="video/mp4" />
-          </video>
-          
-          <div className="container mx-auto text-center relative z-10">
-            {/* Logo en tekst in video nu optimaal zichtbaar zonder overlays */}
+        {/* Simple Navigation Menu */}
+        <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5 backdrop-blur-md">
+          <div className="container mx-auto px-6 h-20 flex items-center justify-between">
+             <div className="flex items-center gap-3">
+               <img src="/logo-full.png" alt="ClearClause Logo" className="h-12 w-auto" />
+             </div>
+             <div className="flex items-center gap-4">
+                <span className="text-xs font-mono text-cyan-500/50 bg-cyan-900/10 border border-cyan-500/20 px-2 py-1 rounded">BETA</span>
+             </div>
           </div>
-        </section>
+        </nav>
 
         {/* Modes Grid - Minimalist Premium */}
-        <section className="relative py-20 px-4">
+        <section className="relative pt-32 pb-20 px-4">
           <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {modes.map((mode) => {
@@ -97,8 +91,9 @@ export default function Landing() {
         </section>
 
         {/* Footer */}
-        <footer className="relative py-12 px-4 text-center border-t border-white/5">
-          <p className="text-white/20 text-xs tracking-[0.2em] uppercase">
+        <footer className="relative py-12 px-4 border-t border-white/5 flex flex-col items-center gap-4">
+          <img src="/kairos-brain.png" alt="KairOS Logo" className="h-8 w-auto opacity-40 hover:opacity-100 transition-opacity" />
+          <p className="text-white/20 text-xs tracking-[0.2em] uppercase text-center">
             Powered by KairOS Multi-Expert AI Analysis
           </p>
         </footer>

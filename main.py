@@ -10,7 +10,27 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from modules.analysis import analyze_document
 from modules.analysis.modes import AnalysisMode
+from modules.chat.engine import generate_chat_response, ChatMessage
 import json
+from datetime import datetime, timedelta
+from collections import defaultdict
+
+# Simple In-Memory Rate Limiter (voor MVP)
+# In productie: gebruik Redis
+DAILY_LIMIT = 10
+analysis_usage = defaultdict(list)
+
+def check_rate_limit(ip_address: str) -> bool:
+    now = datetime.now()
+    # Filter requests ouder dan 24 uur updates de lijst
+    analysis_usage[ip_address] = [t for t in analysis_usage[ip_address] if t > now - timedelta(days=1)]
+    
+    if len(analysis_usage[ip_address]) >= DAILY_LIMIT:
+        return False
+    
+    analysis_usage[ip_address].append(now)
+    return True
+
 
 app = FastAPI(title="ClearClause Suite API")
 
@@ -54,6 +74,11 @@ class DocumentRequest(BaseModel):
     mode: str = Field(default="algemene_voorwaarden", description="Analyse modus")
     context: Optional[str] = Field(default=None, description="Extra context (voor reactie brief mode)")
 
+class ChatRequest(BaseModel):
+    question: str
+    context_text: str
+    history: list[ChatMessage]
+
 @app.get("/health")
 async def health_check():
     return {"status": "healthy", "service": "ClearClause Suite"}
@@ -75,7 +100,14 @@ async def get_modes():
     }
 
 @app.post("/analyze")
-async def handle_analysis(request: DocumentRequest):
+async def handle_analysis(request: DocumentRequest, req: Request):
+    client_ip = req.client.host
+    if not check_rate_limit(client_ip):
+         raise HTTPException(
+            status_code=429,
+            detail=f"Dagelijks limiet bereikt ({DAILY_LIMIT} analyses per 24u). Probeer het morgen opnieuw."
+        )
+
     try:
         # Converteer string naar AnalysisMode enum
         try:
@@ -101,6 +133,18 @@ async def handle_analysis(request: DocumentRequest):
     except Exception as e:
         print(f"[!] Fout: {e}")
         raise HTTPException(status_code=500, detail=f"Interne Server Fout: {str(e)}")
+@app.post("/chat")
+async def handle_chat(request: ChatRequest):
+    try:
+        response = generate_chat_response(
+            question=request.question,
+            context_text=request.context_text,
+            history=request.history
+        )
+        return {"answer": response}
+    except Exception as e:
+        print(f"[!] Chat Fout: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 if __name__ == "__main__":
     import uvicorn
