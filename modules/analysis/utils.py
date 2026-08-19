@@ -38,7 +38,7 @@ def split_text(text: str, max_tokens: int = 15000, overlap: int = 500) -> List[s
     paragraphs = text.split('\n\n')
     
     chunks = []
-    current_chunk = []
+    current_chunk: list[str] = []
     current_tokens = 0
     
     for para in paragraphs:
