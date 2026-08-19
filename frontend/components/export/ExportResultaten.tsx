@@ -7,12 +7,12 @@ import type { AnalysisResponse } from "@/lib/api";
 import { AnalysisPDF } from "./AnalysisPDF";
 import { Button } from "@/components/ui/button";
 
-export function ExportResultaten({ data, documentName = "Document" }: { data: AnalysisResponse; documentName?: string }) {
+export function ExportResultaten({ data, documentName = "Document", reviewStatuses = {} }: { data: AnalysisResponse; documentName?: string; reviewStatuses?: Record<string, string> }) {
   const filename = `clearclause-analyse-${data.mode}.pdf`;
 
   return (
     <PDFDownloadLink
-      document={<AnalysisPDF data={data} documentName={documentName} />}
+      document={<AnalysisPDF data={data} documentName={documentName} reviewStatuses={reviewStatuses} />}
       fileName={filename}
     >
       {({ loading }) => (

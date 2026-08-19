@@ -81,7 +81,9 @@ async def handle_analysis(
 
         logger.info("Analyse request received", extra={"document_name": request.document_name, "mode": mode.value})
         result_json = await analyze_document(text=request.text, mode=mode, context=request.context)
-        return add_presentational_fields(json.loads(result_json), mode)
+        result = add_presentational_fields(json.loads(result_json), mode, request.text)
+        result["document_name"] = request.document_name or "Onbekend Document"
+        return result
     except HTTPException:
         raise
     except ValueError as exc:
@@ -127,8 +129,9 @@ async def handle_file_analysis(
             raise HTTPException(status_code=400, detail="Geen tekst gevonden in het bestand.")
 
         result_json = await analyze_document(text=extracted_text, mode=analysis_mode, context=None)
-        result = add_presentational_fields(json.loads(result_json), analysis_mode)
+        result = add_presentational_fields(json.loads(result_json), analysis_mode, extracted_text)
         result["extracted_text"] = extracted_text
+        result["document_name"] = filename or "Onbekend Document"
         return result
     except HTTPException:
         raise

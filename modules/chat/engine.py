@@ -3,6 +3,7 @@ from pydantic import BaseModel
 from modules.shared.openai_client import openai_client
 from modules.shared.logging import get_logger
 from modules.shared.metrics import record_openai_usage
+from modules.shared.config import OPENAI_MODEL
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
@@ -47,13 +48,13 @@ REGELS:
 
     try:
         response = await openai_client.chat.completions.create(
-            model="gpt-4o",  # Of gpt-3.5-turbo afhankelijk van budget/voorkeur
+            model=OPENAI_MODEL,
             messages=messages,  # type: ignore[arg-type]
             temperature=0.3,
             max_tokens=500
         )
-        usage = record_openai_usage(response, "gpt-4o", "chat")
-        logger.info("OpenAI chat usage", extra={"model": "gpt-4o", **usage})
+        usage = record_openai_usage(response, OPENAI_MODEL, "chat")
+        logger.info("OpenAI chat usage", extra={"model": OPENAI_MODEL, **usage})
         content = response.choices[0].message.content
         if not content:
             raise ValueError("De chat-provider retourneerde geen antwoord.")

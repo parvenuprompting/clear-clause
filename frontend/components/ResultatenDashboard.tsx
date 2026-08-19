@@ -1,13 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Briefcase, Tag } from "lucide-react";
-import type { AnalysisResponse } from "@/lib/api";
+import type { AnalysisResponse, RedFlag } from "@/lib/api";
 import { ChatSection } from "./ChatSection";
 import { ExportResultaten } from "./export/ExportResultaten";
 
@@ -18,18 +18,22 @@ interface ResultatenDashboardProps {
     data: AnalysisResponse;
     analyzedText: string;
     mode?: string;
+    documentName?: string;
 }
+
+type ReviewStatus = "open" | "gecontroleerd" | "actie_nodig" | "afgehandeld";
+
+const REVIEW_STATUS_LABELS: Record<ReviewStatus, string> = {
+    open: "Open",
+    gecontroleerd: "Gecontroleerd",
+    actie_nodig: "Actie nodig",
+    afgehandeld: "Afgehandeld",
+};
 
 function getSeverityColor(score: number): string {
     if (score >= 1 && score <= 3) return "bg-blue-500";
     if (score >= 4 && score <= 7) return "bg-orange-500";
     return "bg-red-500";
-}
-
-function getSeverityLabel(score: number): string {
-    if (score >= 1 && score <= 3) return "Laag";
-    if (score >= 4 && score <= 7) return "Gemiddeld";
-    return "Kritiek";
 }
 
 function DetailList({ items, emptyLabel = "Geen gegevens beschikbaar." }: { items?: string[]; emptyLabel?: string }) {
@@ -167,8 +171,14 @@ function ModeDetails({ data }: { data: AnalysisResponse }) {
     return null;
 }
 
-export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDashboardProps) {
+export function ResultatenDashboard({ data, analyzedText, mode, documentName = "Document" }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
+    const [activePassageId, setActivePassageId] = useState<string | null>(null);
+    const [reviewStatuses, setReviewStatuses] = useState<Record<string, ReviewStatus>>({});
+    const [severityFilter, setSeverityFilter] = useState("all");
+    const [riskFilter, setRiskFilter] = useState("all");
+    const [statusFilter, setStatusFilter] = useState<ReviewStatus | "all">("all");
+    const passageRefs = useRef<Record<string, HTMLSpanElement | null>>({});
     const activeMode = data.mode || mode;
     
     // Determine context based on mode
@@ -206,6 +216,56 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
         setTimeout(() => setCopied(false), 2000);
     };
 
+    const setStatus = (passageId: string, status: ReviewStatus) => {
+        setReviewStatuses((current) => ({ ...current, [passageId]: status }));
+    };
+
+    const focusPassage = (flag: RedFlag) => {
+        const passageId = flag.source_match?.passage_id;
+        if (!passageId || flag.source_match?.start == null || flag.source_match.end == null) return;
+        setActivePassageId(passageId);
+        requestAnimationFrame(() => passageRefs.current[passageId]?.scrollIntoView({ behavior: "smooth", block: "center" }));
+    };
+
+    const visibleFlags = data.red_flags.filter((flag) => {
+        const index = data.red_flags.indexOf(flag);
+        const passageId = flag.source_match?.passage_id ?? `unmatched-${index}`;
+        const status = reviewStatuses[passageId] || "open";
+        const severityMatches = severityFilter === "all" || (severityFilter === "high" ? flag.severity_score >= 8 : severityFilter === "medium" ? flag.severity_score >= 4 && flag.severity_score <= 7 : flag.severity_score <= 3);
+        return severityMatches && (riskFilter === "all" || flag.risk_type === riskFilter) && (statusFilter === "all" || status === statusFilter);
+    });
+    const riskTypes = Array.from(new Set(data.red_flags.map((flag) => flag.risk_type)));
+
+    const renderDocument = () => {
+        const ranges = data.red_flags
+            .map((flag) => ({ flag, match: flag.source_match }))
+            .filter(({ match }) => match?.start != null && match.end != null && match.status !== "not_found")
+            .sort((a, b) => (a.match!.start! - b.match!.start!));
+        const parts: ReactNode[] = [];
+        let cursor = 0;
+        ranges.forEach(({ flag, match }) => {
+            const start = Math.max(cursor, match!.start!);
+            const end = Math.max(start, match!.end!);
+            if (start > cursor) parts.push(<span key={`text-${cursor}`}>{analyzedText.slice(cursor, start)}</span>);
+            if (end > cursor) {
+                const passageId = match!.passage_id;
+                parts.push(
+                    <span
+                        key={passageId}
+                        ref={(node) => { passageRefs.current[passageId] = node; }}
+                        className={`rounded px-0.5 transition-colors ${activePassageId === passageId ? "bg-yellow-300 text-black ring-2 ring-yellow-200" : flag.severity_score >= 8 ? "bg-red-500/40" : "bg-orange-400/30"}`}
+                        title={`${flag.risk_type} (${match!.match_confidence * 100}% match)`}
+                    >
+                        {analyzedText.slice(start, end)}
+                    </span>
+                );
+                cursor = end;
+            }
+        });
+        if (cursor < analyzedText.length) parts.push(<span key={`text-${cursor}`}>{analyzedText.slice(cursor)}</span>);
+        return parts;
+    };
+
     return (
         <div className="w-full max-w-7xl mx-auto space-y-6">
             {/* Samenvatting */}
@@ -225,7 +285,7 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                             >
                                 {copied ? <><Check className="h-4 w-4" />Gekopieerd!</> : <><Copy className="h-4 w-4" />Kopieer</>}
                             </Button>
-                            <ExportResultaten data={data} />
+                             <ExportResultaten data={data} documentName={documentName} reviewStatuses={reviewStatuses} />
                         </div>
                     </div>
                     <CardDescription className="text-white/70">De belangrijkste punten uit het document</CardDescription>
@@ -242,56 +302,57 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                 </CardContent>
             </Card>
 
-            {/* Rode Vlaggen */}
+            {/* Evidence review */}
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-white">
                         <AlertTriangle className="h-5 w-5 text-red-400" />
-                        Rode Vlaggen ({data.red_flags.length})
+                        Bewijsgerichte review ({data.red_flags.length})
                     </CardTitle>
-                    <CardDescription className="text-white/70">Gedetecteerde risico&apos;s en dark patterns</CardDescription>
+                    <CardDescription className="text-white/70">Klik een risico om de onderliggende bronpassage te controleren.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    {data.red_flags.length === 0 ? (
+                    <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)] gap-5">
+                        <div className="rounded-lg border border-white/10 bg-black/20 p-4 max-h-[650px] overflow-auto" aria-label="Geëxtraheerde documenttekst">
+                            <div className="mb-3 flex items-center justify-between gap-2">
+                                <h3 className="text-sm font-semibold text-cyan-200">Bron: {documentName}</h3>
+                                <span className="text-xs text-white/50">{analyzedText.length.toLocaleString("nl-NL")} tekens</span>
+                            </div>
+                            <p className="whitespace-pre-wrap font-mono text-xs leading-6 text-slate-200">{analyzedText ? renderDocument() : "Geen geëxtraheerde tekst beschikbaar."}</p>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex flex-wrap gap-2" aria-label="Reviewfilters">
+                                <select value={severityFilter} onChange={(event) => setSeverityFilter(event.target.value)} className="rounded border border-white/15 bg-black/40 px-2 py-1 text-xs text-white" aria-label="Filter op ernst">
+                                    <option value="all">Alle ernst</option><option value="high">Hoog (8-10)</option><option value="medium">Gemiddeld (4-7)</option><option value="low">Laag (1-3)</option>
+                                </select>
+                                <select value={riskFilter} onChange={(event) => setRiskFilter(event.target.value)} className="rounded border border-white/15 bg-black/40 px-2 py-1 text-xs text-white" aria-label="Filter op risicotype">
+                                    <option value="all">Alle typen</option>{riskTypes.map((type) => <option key={type} value={type}>{type}</option>)}
+                                </select>
+                                <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as ReviewStatus | "all")} className="rounded border border-white/15 bg-black/40 px-2 py-1 text-xs text-white" aria-label="Filter op status">
+                                    <option value="all">Alle statussen</option>{Object.entries(REVIEW_STATUS_LABELS).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                                </select>
+                            </div>
+                            {visibleFlags.length === 0 ? <p className="text-sm text-white/60">Geen risico&apos;s voldoen aan deze filters.</p> : visibleFlags.map((flag, index) => {
+                                const passageId = flag.source_match?.passage_id || `unmatched-${index}`;
+                                const status = reviewStatuses[passageId] || "open";
+                                const canNavigate = flag.source_match?.start != null && flag.source_match.end != null && flag.source_match.status !== "not_found";
+                                return <article key={passageId} className={`rounded-lg border p-4 transition-colors ${activePassageId === passageId ? "border-yellow-300/70 bg-yellow-300/10" : "border-white/10 bg-black/20"}`}>
+                                    <button type="button" onClick={() => focusPassage(flag)} disabled={!canNavigate} className="w-full text-left disabled:cursor-default" aria-label={canNavigate ? "Toon bronpassage" : "Bronpassage niet gevonden"}>
+                                        <div className="flex flex-wrap items-center gap-2"><code className="text-xs text-cyan-200">{flag.risk_type}</code><Badge className={getSeverityColor(flag.severity_score) + " text-white border-none"}>{flag.severity_score}/10</Badge><Badge className="bg-white/10 text-white border-white/10">{REVIEW_STATUS_LABELS[status]}</Badge></div>
+                                        <blockquote className="mt-2 border-l-2 border-red-400 pl-3 font-mono text-xs italic text-slate-200">&quot;{flag.clause_citation}&quot;</blockquote>
+                                        <p className="mt-2 text-sm text-slate-200">{flag.explanation}</p>
+                                    </button>
+                                    <p className={`mt-2 text-xs ${canNavigate ? "text-green-300" : "text-orange-300"}`}>{canNavigate ? `Bronanker gevonden (${Math.round((flag.source_match?.match_confidence || 0) * 100)}% zekerheid)` : "Bronpassage niet betrouwbaar gevonden; controleer handmatig."}</p>
+                                    <p className="mt-2 rounded-md border border-orange-400/20 bg-orange-400/10 p-2 text-sm text-orange-100"><strong>Wat nu?</strong> {flag.action_required}</p>
+                                    <div className="mt-3 flex flex-wrap gap-1" role="group" aria-label="Reviewstatus">
+                                        {Object.entries(REVIEW_STATUS_LABELS).map(([value, label]) => <button key={value} type="button" onClick={() => setStatus(passageId, value as ReviewStatus)} className={`rounded border px-2 py-1 text-xs transition-colors ${status === value ? "border-cyan-300 bg-cyan-400/20 text-cyan-100" : "border-white/10 text-white/60 hover:bg-white/10"}`}>{label}</button>)}
+                                    </div>
+                                </article>;
+                            })}
+                        </div>
+                    </div>
+                    {data.red_flags.length === 0 && (
                         <p className="text-white/60">Geen significante risico&apos;s gedetecteerd.</p>
-                    ) : (
-                        <Table>
-                            <TableHeader>
-                                <TableRow className="border-white/10 hover:bg-white/5">
-                                    <TableHead className="text-white/80">Clausule</TableHead>
-                                    <TableHead className="text-white/80">Risico Type</TableHead>
-                                    <TableHead className="text-white/80 w-full">Uitleg</TableHead>
-                                    <TableHead className="text-right text-white/80 w-[150px] min-w-[150px]">Ernst</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {data.red_flags.map((flag, index) => (
-                                    <TableRow key={index} className="border-white/10 hover:bg-white/5">
-                                        <TableCell className="max-w-xs text-slate-200">
-                                            <blockquote className="border-l-2 border-red-400 pl-3 font-mono text-xs italic">
-                                                &quot;{flag.clause_citation}&quot;
-                                            </blockquote>
-                                        </TableCell>
-                                        <TableCell>
-                                            <code className="text-xs bg-white/10 text-white px-2 py-1 rounded border border-white/10">
-                                                {flag.risk_type}
-                                            </code>
-                                        </TableCell>
-                                        <TableCell className="text-slate-200 break-words whitespace-normal min-w-[300px]">
-                                            <p>{flag.explanation}</p>
-                                            <p className="mt-3 rounded-md border border-orange-400/20 bg-orange-400/10 p-2 text-sm text-orange-100">
-                                                <strong>Wat nu?</strong> {flag.action_required}
-                                            </p>
-                                        </TableCell>
-                                        <TableCell className="text-right whitespace-nowrap w-[150px] min-w-[150px]">
-                                            <Badge className={getSeverityColor(flag.severity_score) + " text-white border-none"}>
-                                                {flag.severity_score}/10 - {getSeverityLabel(flag.severity_score)}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
                     )}
                 </CardContent>
             </Card>

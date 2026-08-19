@@ -1,5 +1,6 @@
 import React from 'react';
 import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import type { AnalysisResponse } from '@/lib/api';
 
 // Styles voor PDF
 const styles = StyleSheet.create({
@@ -16,7 +17,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 24,
         fontWeight: 'bold',
-        color: '#00ffff',
+        color: '#007b8a',
         marginBottom: 5,
     },
     subtitle: {
@@ -30,7 +31,7 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 16,
         fontWeight: 'bold',
-        color: '#00ffff',
+        color: '#007b8a',
         marginBottom: 8,
         textTransform: 'uppercase',
     },
@@ -78,23 +79,12 @@ const styles = StyleSheet.create({
 });
 
 interface AnalysisPDFProps {
-    data: {
-        summary: string[];
-        red_flags: Array<{
-            clause_citation: string;
-            risk_type: string;
-            explanation: string;
-            severity_score: number;
-            action_required: string;
-        }>;
-        suggestions: string[];
-        privacy_score: number;
-        privacy_motivatie: string;
-    };
+    data: AnalysisResponse;
     documentName?: string;
+    reviewStatuses?: Record<string, string>;
 }
 
-export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "Document" }) => {
+export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "Document", reviewStatuses = {} }) => {
     const currentDate = new Date().toLocaleDateString('nl-NL', {
         year: 'numeric',
         month: 'long',
@@ -134,13 +124,17 @@ export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "
                         {data.red_flags.map((flag, index) => (
                             <View key={index} style={styles.redFlag}>
                                 <Text style={styles.redFlagTitle}>
-                                    {flag.risk_type} (Ernst: {flag.severity_score}/10)
+                                    {flag.risk_type} (Ernst: {flag.severity_score}/10) • {reviewStatuses[flag.source_match?.passage_id || `unmatched-${index}`] || "open"}
                                 </Text>
                                 <Text style={styles.text}>{flag.explanation}</Text>
                                 <Text style={[styles.text, { fontSize: 9, fontStyle: 'italic' }]}>
                                     &quot;{flag.clause_citation}&quot;
                                 </Text>
                                 <Text style={styles.text}>Wat nu: {flag.action_required}</Text>
+                                <Text style={[styles.text, { fontSize: 9 }]}>Bronstatus: {flag.source_match?.status || "not_found"}</Text>
+                                {flag.source_match?.matched_text && (
+                                    <Text style={[styles.text, { fontSize: 9, fontStyle: 'italic' }]}>Geverifieerde bronpassage: &quot;{flag.source_match.matched_text}&quot;</Text>
+                                )}
                             </View>
                         ))}
                     </View>

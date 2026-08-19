@@ -209,7 +209,7 @@ function AnalysePageContent() {
                                 </Tooltip>
                             </div>
 
-                            <ResultatenDashboard data={result} analyzedText={analyzedText} mode={currentMode} />
+                            <ResultatenDashboard data={result} analyzedText={analyzedText} mode={currentMode} documentName={result.document_name || "Document"} />
                         </div>
                     )}
                 </div>

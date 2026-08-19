@@ -14,6 +14,7 @@ from .modes import AnalysisMode
 from modules.shared.openai_client import openai_client
 from modules.shared.logging import get_logger
 from modules.shared.metrics import record_openai_usage
+from modules.shared.config import OPENAI_MODEL
 
 # Import prompts
 from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief, zakelijke_onderhandelingen, web_deals
@@ -63,7 +64,7 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
         user_message = f"Analyseer dit document:\n\n{chunk}"
 
     response = await openai_client.chat.completions.create(  # type: ignore[call-overload]
-        model="gpt-4o",
+        model=OPENAI_MODEL,
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message}
@@ -76,8 +77,8 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
             }
         }
     )
-    usage = record_openai_usage(response, "gpt-4o", "analysis")
-    logger.info("OpenAI analysis usage", extra={"model": "gpt-4o", **usage})
+    usage = record_openai_usage(response, OPENAI_MODEL, "analysis")
+    logger.info("OpenAI analysis usage", extra={"model": OPENAI_MODEL, **usage})
     
     content = response.choices[0].message.content
     if not content:
@@ -139,14 +140,14 @@ async def _merge_results(
 Geef alleen de 5 belangrijkste punten terug."""
         
         summary_response = await openai_client.chat.completions.create(
-            model="gpt-4o",
+            model=OPENAI_MODEL,
             messages=[
                 {"role": "system", "content": "Je bent een juridische samenvatter. Maak beknopte punten."},
                 {"role": "user", "content": summary_prompt}
             ]
         )
-        usage = record_openai_usage(summary_response, "gpt-4o", "summary")
-        logger.info("OpenAI summary usage", extra={"model": "gpt-4o", **usage})
+        usage = record_openai_usage(summary_response, OPENAI_MODEL, "summary")
+        logger.info("OpenAI summary usage", extra={"model": OPENAI_MODEL, **usage})
         
         summary_text = summary_response.choices[0].message.content
         if not summary_text:

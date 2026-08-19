@@ -149,6 +149,8 @@ Configureer `.env` met minimaal:
 
 ```env
 OPENAI_API_KEY=sk-jouw-api-key
+OPENAI_MODEL=openai/gpt-5.6-luna
+OPENAI_BASE_URL=https://openrouter.ai/api/v1
 SECRET_KEY=gebruik-een-lange-willekeurige-productiesleutel
 ALGORITHM=HS256
 ENVIRONMENT=production
@@ -180,6 +182,8 @@ De backend en frontend hebben Docker healthchecks. De gateway start pas wanneer 
 | `REDIS_URL` | Nee | Redis-verbinding voor distributed rate limiting; zonder waarde wordt in-memory gebruikt |
 | `OPENAI_TIMEOUT` | Nee | OpenAI request timeout in seconden, standaard `30` |
 | `OPENAI_MAX_RETRIES` | Nee | Aantal SDK-retries, standaard `2` |
+| `OPENAI_MODEL` | Nee | Modelidentifier, standaard `openai/gpt-5.6-luna` |
+| `OPENAI_BASE_URL` | Nee | OpenAI-compatible provider-endpoint, standaard OpenRouter |
 
 Kopieer `.env.example` naar `.env` en vul nooit echte waarden in een gecommit bestand in.
 

@@ -1,9 +1,21 @@
+export type SourceMatchStatus = "matched" | "uncertain" | "not_found";
+
+export interface SourceMatch {
+    passage_id: string;
+    status: SourceMatchStatus;
+    start: number | null;
+    end: number | null;
+    match_confidence: number;
+    matched_text: string | null;
+}
+
 export interface RedFlag {
     clause_citation: string;
     risk_type: string;
     explanation: string;
     severity_score: number;
     action_required: string;
+    source_match?: SourceMatch;
 }
 
 export interface UserRightStatus {
@@ -19,6 +31,7 @@ interface AnalysisResultBase {
     privacy_score: number;
     privacy_motivatie: string;
     extracted_text?: string;
+    document_name?: string;
 }
 
 export interface GeneralAnalysisResult extends AnalysisResultBase {

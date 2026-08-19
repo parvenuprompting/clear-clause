@@ -1,6 +1,7 @@
 import tiktoken
 from functools import lru_cache
 from typing import List
+from modules.shared.config import OPENAI_MODEL
 
 
 @lru_cache(maxsize=4)
@@ -11,7 +12,7 @@ def _encoding_for_model(model: str):
         return tiktoken.get_encoding("cl100k_base")
 
 
-def count_tokens(text: str, model: str = "gpt-4o") -> int:
+def count_tokens(text: str, model: str = OPENAI_MODEL) -> int:
     """
     Tel het aantal tokens in de gegeven tekst voor een specifiek model.
     """
@@ -34,6 +35,12 @@ def split_text(text: str, max_tokens: int = 15000, overlap: int = 500) -> List[s
     Returns:
         List van text chunks
     """
+    def overlap_text(chunks: list[str]) -> str:
+        if overlap <= 0 or not chunks:
+            return ""
+        encoded = _encoding_for_model(OPENAI_MODEL).encode("\n\n".join(chunks))
+        return _encoding_for_model(OPENAI_MODEL).decode(encoded[-overlap:])
+
     # Split op paragrafen
     paragraphs = text.split('\n\n')
     
@@ -56,8 +63,8 @@ def split_text(text: str, max_tokens: int = 15000, overlap: int = 500) -> List[s
                     chunks.append('\n\n'.join(current_chunk))
                     
                     # Start nieuwe chunk met overlap
-                    overlap_text = current_chunk[-1] if current_chunk else ""
-                    current_chunk = [overlap_text, sentence] if overlap_text else [sentence]
+                    previous_text = overlap_text(current_chunk)
+                    current_chunk = [previous_text, sentence] if previous_text else [sentence]
                     current_tokens = count_tokens('\n\n'.join(current_chunk))
                 else:
                     current_chunk.append(sentence)
@@ -69,8 +76,8 @@ def split_text(text: str, max_tokens: int = 15000, overlap: int = 500) -> List[s
             chunks.append('\n\n'.join(current_chunk))
             
             # Start nieuwe chunk met overlap (laatste paragraaf)
-            overlap_text = current_chunk[-1] if current_chunk else ""
-            current_chunk = [overlap_text, para] if overlap_text else [para]
+            previous_text = overlap_text(current_chunk)
+            current_chunk = [previous_text, para] if previous_text else [para]
             current_tokens = count_tokens('\n\n'.join(current_chunk))
         else:
             current_chunk.append(para)

@@ -1,9 +1,20 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional
+from typing import List, Optional, Literal
 
 # ============================================================================
 # Algemene Voorwaarden (bestaand)
 # ============================================================================
+
+class SourceMatch(BaseModel):
+    passage_id: str = Field(description="Stabiele identifier voor deze bronpassage")
+    status: Literal["matched", "uncertain", "not_found"] = Field(
+        description="Of de passage betrouwbaar in de brontekst is gevonden"
+    )
+    start: Optional[int] = Field(default=None, ge=0, description="Inclusieve startpositie in de brontekst")
+    end: Optional[int] = Field(default=None, ge=0, description="Exclusieve eindpositie in de brontekst")
+    match_confidence: float = Field(ge=0, le=1, description="Vertrouwen in de tekstmatch")
+    matched_text: Optional[str] = Field(default=None, description="Werkelijk gematchte bronpassage")
+
 
 class RedFlag(BaseModel):
     clause_citation: str = Field(description="Exacte tekst van de problematische clausule")
@@ -11,6 +22,7 @@ class RedFlag(BaseModel):
     explanation: str = Field(description="Begrijpelijke uitleg van het risico")
     severity_score: int = Field(ge=1, le=10, description="Ernst score 1-10")
     action_required: str = Field(description="Concrete actie die de gebruiker nu kan nemen")
+    source_match: Optional[SourceMatch] = Field(default=None, description="Gevalideerd bronanker")
 
 class AnalysisResponse(BaseModel):
     summary: List[str] = Field(max_length=5, description="Maximaal 5 kernpunten")
