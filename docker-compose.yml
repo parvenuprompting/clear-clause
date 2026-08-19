@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: .
@@ -11,6 +9,12 @@ services:
     networks:
       - internal_network
     restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
 
   frontend:
     build: ./frontend
@@ -19,6 +23,12 @@ services:
     networks:
       - internal_network
     restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--spider", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
 
   gateway:
     image: nginx:alpine
@@ -27,8 +37,10 @@ services:
     ports:
       - "80:80"
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_healthy
     networks:
       - internal_network
     restart: always
