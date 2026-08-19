@@ -187,6 +187,13 @@ Backend syntax controleren:
 python3 -m compileall -q main.py modules
 ```
 
+Backend test dependencies installeren en tests draaien:
+
+```bash
+pip install -r requirements-dev.txt
+pytest
+```
+
 Frontend controleren:
 
 ```bash

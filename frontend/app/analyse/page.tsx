@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import { AnalysisForm } from "@/components/AnalysisForm";
 import { LoadingState } from "@/components/LoadingState";
@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Link from "next/link";
 
-export default function AnalysePage() {
+function AnalysePageContent() {
     const searchParams = useSearchParams();
     const [isLoading, setIsLoading] = useState(false);
     const [result, setResult] = useState<AnalysisResponse | null>(null);
@@ -214,5 +214,13 @@ export default function AnalysePage() {
                 </div>
             </main>
         </TooltipProvider>
+    );
+}
+
+export default function AnalysePage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen bg-black" />}>
+            <AnalysePageContent />
+        </Suspense>
     );
 }
