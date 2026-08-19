@@ -30,6 +30,11 @@ class JsonFormatter(logging.Formatter):
             "environment",
             "mode",
             "token_count",
+            "model",
+            "operation",
+            "prompt_tokens",
+            "completion_tokens",
+            "total_tokens",
         }
         context = {
             key: record.__dict__[key]

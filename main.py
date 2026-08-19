@@ -1,4 +1,5 @@
 import os
+import time
 import uuid
 
 from dotenv import load_dotenv
@@ -9,11 +10,13 @@ from modules.shared.logging import configure_logging, request_id_context
 
 configure_logging()
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from prometheus_client import CONTENT_TYPE_LATEST, generate_latest
 
 from modules.api.config import MAX_REQUEST_SIZE
 from modules.api.routes import router
+from modules.shared.metrics import record_http_request
 
 
 app = FastAPI(title="ClearClause Suite API")
@@ -29,6 +32,16 @@ async def add_request_id(request: Request, call_next):
         return response
     finally:
         request_id_context.reset(context_token)
+
+
+@app.middleware("http")
+async def collect_http_metrics(request: Request, call_next):
+    started_at = time.perf_counter()
+    response = await call_next(request)
+    route = request.scope.get("route")
+    path = getattr(route, "path", request.url.path)
+    record_http_request(request.method, path, response.status_code, time.perf_counter() - started_at)
+    return response
 
 
 @app.middleware("http")
@@ -65,6 +78,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.include_router(router)
+
+
+@app.get("/metrics", include_in_schema=False)
+async def metrics() -> Response:
+    return Response(generate_latest(), media_type=CONTENT_TYPE_LATEST)
 
 
 if __name__ == "__main__":

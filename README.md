@@ -35,6 +35,8 @@ ClearClause analyseert juridische tekst, PDF's en afbeeldingen met mode-specifie
 - Request-ID tracing via `X-Request-ID` en JSON-logs
 - Request-validatie, uploadlimieten, JWT-structuur en rate limiting
 - Docker healthchecks en Nginx security headers
+- Redis-backed rate limiting voor meerdere backendinstances
+- Prometheus metrics op `/metrics` voor HTTP-verkeer, latency en OpenAI-tokens
 
 ## Analysemodi
 
@@ -84,6 +86,7 @@ clear-clause/
 - JWT-validatie met `python-jose`
 - AsyncOpenAI-client met parallelle chunk-analyse
 - Structured JSON logging met request-ID context
+- Configureerbare OpenAI timeouts en retries
 - Ruff en mypy configuratie via `pyproject.toml`
 
 ### Frontend
@@ -174,6 +177,9 @@ De backend en frontend hebben Docker healthchecks. De gateway start pas wanneer 
 | `LOG_LEVEL` | Nee | Loglevel voor JSON-logs, standaard `INFO` |
 | `NEXT_PUBLIC_API_URL` | Nee | Backend-url die de browser gebruikt |
 | `NEXT_PUBLIC_API_TOKEN` | Nee | Optionele Bearer-token voor niet-development backends |
+| `REDIS_URL` | Nee | Redis-verbinding voor distributed rate limiting; zonder waarde wordt in-memory gebruikt |
+| `OPENAI_TIMEOUT` | Nee | OpenAI request timeout in seconden, standaard `30` |
+| `OPENAI_MAX_RETRIES` | Nee | Aantal SDK-retries, standaard `2` |
 
 Kopieer `.env.example` naar `.env` en vul nooit echte waarden in een gecommit bestand in.
 
@@ -183,6 +189,7 @@ Kopieer `.env.example` naar `.env` en vul nooit echte waarden in een gecommit be
 | --- | --- | --- |
 | `GET` | `/health` | Health check |
 | `GET` | `/modes` | Beschikbare analysemodi en metadata |
+| `GET` | `/metrics` | Prometheus HTTP-, latency- en tokenmetrics |
 | `POST` | `/analyze` | Geplakte tekst analyseren |
 | `POST` | `/analyze-file` | PDF of afbeelding analyseren |
 | `POST` | `/chat` | Vervolgvraag over documentcontext beantwoorden |
@@ -214,6 +221,16 @@ Een risico bevat altijd een bronpassage en een actie:
 
 Alle responses bevatten een `mode`-veld. De backend retourneert bovendien een `X-Request-ID`-header. Gebruik die waarde om een gebruikersmelding aan de bijbehorende JSON-logregels te koppelen.
 
+### Metrics
+
+`/metrics` retourneert Prometheus-formaat. Beschikbare custom metrics zijn onder andere:
+
+- `http_requests_total{method,path,status}`
+- `http_request_duration_seconds{method,path}`
+- `openai_tokens_total{model,token_type}` met `prompt`, `completion` en `total`
+
+De token-counter registreert alleen usage-informatie die door OpenAI wordt teruggegeven. Tokenprijzen horen in de monitoringlaag te worden toegepast, omdat modelprijzen kunnen wijzigen.
+
 ## Security en privacy
 
 - Zet nooit echte secrets in Git.
@@ -223,6 +240,7 @@ Alle responses bevatten een `mode`-veld. De backend retourneert bovendien een `X
 - Tekstvelden en chatgeschiedenis hebben expliciete limieten.
 - De backend gebruikt server-side rate limiting per IP; de huidige implementatie is in-memory en bedoeld voor de MVP.
 - Rate limiting is momenteel single-instance. Gebruik Redis voordat meerdere backendreplica's worden uitgerold.
+- Als `REDIS_URL` is ingesteld, gebruikt de backend Redis `INCR`/`EXPIRE` voor thread-safe distributed rate limiting. De sprint gebruikt geen persistent Redis-volume; een Redis-restart reset rate-limit state.
 - Analyseconclusies worden gevraagd te verwijzen naar exacte bronpassages. Controleer belangrijke juridische beslissingen altijd zelf.
 - Nginx voegt onder andere CSP, frame-, content-type-, referrer- en permissions-headers toe.
 - Gevoelige juridische documenten kunnen naar de geconfigureerde AI-provider worden verzonden. Voeg geen documenten toe zonder het privacy- en verwerkingsbeleid te controleren.

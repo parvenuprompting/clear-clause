@@ -9,3 +9,5 @@ python-jose[cryptography]==3.5.0
 python-multipart==0.0.32
 pillow==12.3.0
 PyMuPDF==1.28.2
+redis==5.2.1
+prometheus-client==0.26.0

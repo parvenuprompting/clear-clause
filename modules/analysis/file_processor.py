@@ -1,6 +1,11 @@
 import fitz  # PyMuPDF
 import base64
 from modules.shared.openai_client import openai_client
+from modules.shared.logging import get_logger
+from modules.shared.metrics import record_openai_usage
+
+
+logger = get_logger(__name__)
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """Extraheert tekst uit een PDF bestand."""
@@ -39,6 +44,8 @@ async def extract_text_from_image(image_bytes: bytes) -> str:
         ],
         max_tokens=2000
     )
+    usage = record_openai_usage(response, "gpt-4o", "ocr")
+    logger.info("OpenAI OCR usage", extra={"model": "gpt-4o", **usage})
     
     content = response.choices[0].message.content
     if not content:

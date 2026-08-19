@@ -4,6 +4,7 @@ services:
     environment:
       - HOST=0.0.0.0
       - ENVIRONMENT=production
+      - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
     networks:
@@ -29,6 +30,17 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+  redis:
+    image: redis:7-alpine
+    networks:
+      - internal_network
+    restart: always
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   gateway:
     image: nginx:alpine

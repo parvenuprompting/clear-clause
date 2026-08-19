@@ -15,12 +15,15 @@ client = TestClient(app)
 def test_health_and_modes_routes_are_registered():
     health = client.get("/health")
     modes = client.get("/modes")
+    metrics = client.get("/metrics")
 
     assert health.status_code == 200
     assert health.json()["status"] == "healthy"
     assert health.headers["x-request-id"]
     assert modes.status_code == 200
     assert len(modes.json()["modes"]) == 7
+    assert metrics.status_code == 200
+    assert "openai_tokens_total" in metrics.text
 
 
 def test_analyze_rejects_unknown_mode_before_calling_provider():

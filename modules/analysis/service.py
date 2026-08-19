@@ -13,6 +13,7 @@ from .utils import count_tokens, split_text
 from .modes import AnalysisMode
 from modules.shared.openai_client import openai_client
 from modules.shared.logging import get_logger
+from modules.shared.metrics import record_openai_usage
 
 # Import prompts
 from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief, zakelijke_onderhandelingen, web_deals
@@ -61,7 +62,7 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
     else:
         user_message = f"Analyseer dit document:\n\n{chunk}"
 
-        response = await openai_client.chat.completions.create(  # type: ignore[call-overload]
+    response = await openai_client.chat.completions.create(  # type: ignore[call-overload]
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -75,6 +76,8 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
             }
         }
     )
+    usage = record_openai_usage(response, "gpt-4o", "analysis")
+    logger.info("OpenAI analysis usage", extra={"model": "gpt-4o", **usage})
     
     content = response.choices[0].message.content
     if not content:
@@ -142,6 +145,8 @@ Geef alleen de 5 belangrijkste punten terug."""
                 {"role": "user", "content": summary_prompt}
             ]
         )
+        usage = record_openai_usage(summary_response, "gpt-4o", "summary")
+        logger.info("OpenAI summary usage", extra={"model": "gpt-4o", **usage})
         
         summary_text = summary_response.choices[0].message.content
         if not summary_text:

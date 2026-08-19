@@ -1,4 +1,5 @@
 import json
+import os
 from typing import Optional
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, Request, UploadFile
@@ -9,15 +10,34 @@ from modules.analysis.modes import AnalysisMode, MODE_METADATA
 from modules.api.config import DAILY_LIMIT, MAX_REQUEST_SIZE
 from modules.api.models import ChatRequest, DocumentRequest
 from modules.api.presentation import add_presentational_fields
-from modules.auth.rate_limiter import InMemoryRateLimiter
+from redis import Redis
+
+from modules.auth.rate_limiter import InMemoryRateLimiter, RateLimiterStrategy, RedisRateLimiter
 from modules.auth.security import TokenData, verify_token
 from modules.chat.engine import generate_chat_response
 from modules.shared.logging import get_logger
 
 
 router = APIRouter()
-rate_limiter = InMemoryRateLimiter(limit=DAILY_LIMIT)
 logger = get_logger(__name__)
+
+
+def _create_rate_limiter() -> RateLimiterStrategy:
+    redis_url = os.getenv("REDIS_URL")
+    if not redis_url:
+        return InMemoryRateLimiter(limit=DAILY_LIMIT)
+
+    try:
+        client = Redis.from_url(redis_url, decode_responses=True)
+        client.ping()
+        logger.info("Using Redis rate limiter")
+        return RedisRateLimiter(client, limit=DAILY_LIMIT)
+    except Exception:
+        logger.exception("Redis unavailable; falling back to in-memory rate limiter")
+        return InMemoryRateLimiter(limit=DAILY_LIMIT)
+
+
+rate_limiter = _create_rate_limiter()
 
 
 def _client_ip(request: Request) -> str:

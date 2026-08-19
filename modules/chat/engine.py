@@ -2,6 +2,7 @@ from typing import List, Literal
 from pydantic import BaseModel
 from modules.shared.openai_client import openai_client
 from modules.shared.logging import get_logger
+from modules.shared.metrics import record_openai_usage
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
@@ -51,6 +52,8 @@ REGELS:
             temperature=0.3,
             max_tokens=500
         )
+        usage = record_openai_usage(response, "gpt-4o", "chat")
+        logger.info("OpenAI chat usage", extra={"model": "gpt-4o", **usage})
         content = response.choices[0].message.content
         if not content:
             raise ValueError("De chat-provider retourneerde geen antwoord.")

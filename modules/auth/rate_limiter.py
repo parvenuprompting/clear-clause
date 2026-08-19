@@ -3,6 +3,13 @@ from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Dict, List
 
+from redis import Redis
+
+from modules.shared.logging import get_logger
+
+
+logger = get_logger(__name__)
+
 class RateLimiterStrategy(ABC):
     """
     Abstract Base Class voor Rate Limiting strategieën.
@@ -42,3 +49,23 @@ class InMemoryRateLimiter(RateLimiterStrategy):
             
         self.usage[key].append(now)
         return True
+
+
+class RedisRateLimiter(RateLimiterStrategy):
+    """Distributed rate limiter using Redis counters with a rolling window."""
+
+    def __init__(self, client: Redis, limit: int, window_seconds: int = 86400):
+        self.client = client
+        self.limit = limit
+        self.window_seconds = window_seconds
+
+    def check_limit(self, key: str) -> bool:
+        redis_key = f"clearclause:rate-limit:{key}"
+        try:
+            count = int(self.client.incr(redis_key))  # type: ignore[arg-type]
+            if count == 1:
+                self.client.expire(redis_key, self.window_seconds)
+            return count <= self.limit
+        except Exception:
+            logger.exception("Redis rate limiter failed; allowing request")
+            return True
