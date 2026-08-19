@@ -31,6 +31,141 @@ function getSeverityLabel(score: number): string {
     return "Kritiek";
 }
 
+function DetailList({ items, emptyLabel = "Geen gegevens beschikbaar." }: { items?: string[]; emptyLabel?: string }) {
+    if (!items?.length) {
+        return <p className="text-sm text-white/50">{emptyLabel}</p>;
+    }
+
+    return (
+        <ul className="space-y-2">
+            {items.map((item, index) => (
+                <li key={`${item}-${index}`} className="flex items-start gap-2 text-sm text-slate-100">
+                    <span className="mt-1.5 h-1.5 w-1.5 rounded-full bg-cyan-400 flex-shrink-0" />
+                    <span>{item}</span>
+                </li>
+            ))}
+        </ul>
+    );
+}
+
+function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) {
+    if (mode === "privacy_beleid") {
+        return (
+            <Card className="glass glass-hover border-white/20">
+                <CardHeader>
+                    <CardTitle className="text-white">Privacy-inzichten</CardTitle>
+                    <CardDescription className="text-white/70">
+                        Welke gegevens en partijen in het beleid worden genoemd.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 className="text-sm font-semibold text-cyan-300 mb-3">Datacategorieën</h3>
+                        <DetailList items={data.data_categories} />
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-semibold text-cyan-300 mb-3">Derde partijen</h3>
+                        <DetailList items={data.third_parties} />
+                    </div>
+                    <div className="md:col-span-2 border-t border-white/10 pt-4">
+                        <h3 className="text-sm font-semibold text-cyan-300 mb-2">Bewaartermijnen</h3>
+                        <p className="text-sm text-slate-100">{data.retention_policies || "Niet expliciet gevonden."}</p>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (mode === "gebruikersvoorwaarden") {
+        return (
+            <Card className="glass glass-hover border-white/20">
+                <CardHeader>
+                    <CardTitle className="text-white">Rechten en opzegging</CardTitle>
+                    <CardDescription className="text-white/70">
+                        Controle van gebruikersrechten en de beëindigingsvoorwaarden.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {(data.user_rights || []).map((right, index) => {
+                            const name = typeof right === "string" ? right : right.right_name;
+                            const description = typeof right === "string" ? "" : right.description;
+                            const isPresent = typeof right === "string" ? true : right.is_present;
+                            return (
+                                <div key={`${name}-${index}`} className="rounded-lg border border-white/10 bg-black/20 p-3">
+                                    <div className="flex items-center justify-between gap-3">
+                                        <span className="text-sm text-slate-100">{name}</span>
+                                        <Badge className={isPresent ? "bg-green-500/20 text-green-300 border-green-500/30" : "bg-red-500/20 text-red-300 border-red-500/30"}>
+                                            {isPresent ? "Aanwezig" : "Ontbreekt"}
+                                        </Badge>
+                                    </div>
+                                    {description && <p className="text-xs text-white/50 mt-2">{description}</p>}
+                                </div>
+                            );
+                        })}
+                    </div>
+                    <div className="border-t border-white/10 pt-4">
+                        <h3 className="text-sm font-semibold text-cyan-300 mb-2">Opzegbeleid</h3>
+                        <p className="text-sm text-slate-100">{data.termination_policy || "Niet expliciet gevonden."}</p>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (mode === "brieven_analyse") {
+        return (
+            <Card className="glass glass-hover border-white/20">
+                <CardHeader>
+                    <CardTitle className="text-white">Briefprofiel</CardTitle>
+                    <CardDescription className="text-white/70">De belangrijkste kenmerken van deze brief.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-5">
+                    <div className="flex flex-wrap gap-2">
+                        {data.letter_type && <Badge className="bg-cyan-500/20 text-cyan-200 border-cyan-500/30">{data.letter_type}</Badge>}
+                        {data.sentiment && <Badge className="bg-purple-500/20 text-purple-200 border-purple-500/30">Toon: {data.sentiment}</Badge>}
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <h3 className="text-sm font-semibold text-cyan-300 mb-3">Deadlines</h3>
+                            <DetailList items={data.deadlines} emptyLabel="Geen deadlines gevonden." />
+                        </div>
+                        <div>
+                            <h3 className="text-sm font-semibold text-cyan-300 mb-3">Risico-inschatting</h3>
+                            <p className="text-sm text-slate-100">{data.risk_assessment || "Geen afzonderlijke risico-inschatting."}</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    if (mode === "reactie_brief") {
+        return (
+            <Card className="glass glass-hover border-white/20">
+                <CardHeader>
+                    <CardTitle className="text-white">Reactieprofiel</CardTitle>
+                    <CardDescription className="text-white/70">Controleer de toon en aanbevolen vervolgstappen.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <div className="flex flex-wrap gap-2">
+                        {data.tone && <Badge className="bg-cyan-500/20 text-cyan-200 border-cyan-500/30">Toon: {data.tone}</Badge>}
+                        <Badge className={data.legal_review_needed ? "bg-orange-500/20 text-orange-200 border-orange-500/30" : "bg-green-500/20 text-green-200 border-green-500/30"}>
+                            {data.legal_review_needed ? "Juridische review aanbevolen" : "Geen review gemarkeerd"}
+                        </Badge>
+                    </div>
+                    <div>
+                        <h3 className="text-sm font-semibold text-cyan-300 mb-3">Kernpunten</h3>
+                        <DetailList items={data.key_points} />
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
+    return null;
+}
+
 export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
     
@@ -50,6 +185,15 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
         scoreLabel = "Consumer Safety Score";
         scoreDescription = "Beoordeling van transparantie en eerlijkheid";
         ScoreIcon = Tag;
+    } else if (mode === "privacy_beleid") {
+        scoreLabel = "GDPR Score";
+        scoreDescription = "Beoordeling van GDPR-compliance";
+    } else if (mode === "gebruikersvoorwaarden") {
+        scoreLabel = "Fairness Score";
+        scoreDescription = "Balans tussen platform en gebruiker";
+    } else if (mode === "brieven_analyse") {
+        scoreLabel = "Urgentiescore";
+        scoreDescription = "Hoe snel actie nodig kan zijn";
     }
     
     const privacyPercentage = (data.privacy_score / 10) * 100;
@@ -149,6 +293,8 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                     )}
                 </CardContent>
             </Card>
+
+            <ModeDetails data={data} mode={mode} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Suggesties */}

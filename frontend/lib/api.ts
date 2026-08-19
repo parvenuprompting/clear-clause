@@ -5,6 +5,12 @@ export interface RedFlag {
     severity_score: number;
 }
 
+export interface UserRightStatus {
+    right_name: string;
+    description: string;
+    is_present: boolean;
+}
+
 export interface AnalysisResponse {
     mode?: string;
     summary: string[];
@@ -16,15 +22,26 @@ export interface AnalysisResponse {
     gdpr_compliance_score?: number;
     compliance_gaps?: string[];
     recommendations?: string[];
+    data_categories?: string[];
+    third_parties?: string[];
+    user_rights?: UserRightStatus[] | string[];
+    retention_policies?: string | null;
     restrictions?: string[];
+    termination_policy?: string;
     fairness_score?: number;
     urgency_level?: number;
+    letter_type?: string;
+    sentiment?: string;
     action_points?: string[];
+    deadlines?: string[];
     legal_claims?: string[];
+    risk_assessment?: string;
     response_strategy?: string;
     draft_letter?: string;
+    tone?: string;
     key_points?: string[];
     next_steps?: string[];
+    legal_review_needed?: boolean;
 }
 
 export interface AnalyzeRequest {
