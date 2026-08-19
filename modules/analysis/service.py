@@ -1,3 +1,4 @@
+import asyncio
 import json
 from typing import Dict, Any, Optional, List
 from openai import RateLimitError, APIConnectionError, APIError
@@ -7,7 +8,6 @@ from .models import (
     GebruikersvoorwaardenResponse,
     LetterAnalysisResponse,
     ResponseLetterOutput,
-    RedFlag
 )
 from .utils import count_tokens, split_text
 from .modes import AnalysisMode
@@ -61,7 +61,7 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
     else:
         user_message = f"Analyseer dit document:\n\n{chunk}"
 
-    response = await openai_client.chat.completions.create(
+        response = await openai_client.chat.completions.create(  # type: ignore[call-overload]
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -71,7 +71,7 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
             "type": "json_schema",
             "json_schema": {
                 "name": f"{mode.value}_response",
-                "schema": response_model.model_json_schema()
+                    "schema": response_model.model_json_schema()  # type: ignore[attr-defined]
             }
         }
     )
@@ -143,7 +143,9 @@ Geef alleen de 5 belangrijkste punten terug."""
             ]
         )
         
-        summary_text = summary_response.choices[0].message.content or ""
+        summary_text = summary_response.choices[0].message.content
+        if not summary_text:
+            raise ValueError("De AI-provider retourneerde geen samenvatting.")
         final_summary = [line.strip('- ').strip() for line in summary_text.split('\n') if line.strip()][:5]
         
         return {
@@ -217,11 +219,11 @@ async def analyze_document(
             logger.info("Document split into chunks", extra={"chunk_count": len(chunks)})
             
             # MAP: Analyze each chunk
-            chunk_results = []
-            for i, chunk in enumerate(chunks):
-                logger.info("Analyzing chunk", extra={"chunk_number": i + 1, "chunk_count": len(chunks)})
-                result = await _analyze_chunk(chunk, mode, context)
-                chunk_results.append(result)
+            logger.info("Analyzing chunks concurrently", extra={"chunk_count": len(chunks)})
+            chunk_results = await asyncio.gather(*(
+                _analyze_chunk(chunk, mode, context)
+                for chunk in chunks
+            ))
             
             # REDUCE: Merge results
             final_result = await _merge_results(chunk_results, mode)
@@ -232,14 +234,14 @@ async def analyze_document(
             result = await _analyze_chunk(text, mode, context)
             return json.dumps(result, ensure_ascii=False)
         
-    except RateLimitError as e:
+    except RateLimitError:
         logger.warning("OpenAI rate limit reached", exc_info=True)
         raise ValueError(
             "De OpenAI API rate limit is bereikt. "
             "Probeer het over enkele minuten opnieuw."
         )
     
-    except APIConnectionError as e:
+    except APIConnectionError:
         logger.error("OpenAI connection failed", exc_info=True)
         raise ValueError(
             "Kan geen verbinding maken met de OpenAI API. "
@@ -251,6 +253,6 @@ async def analyze_document(
         raise ValueError(
             f"Er is een fout opgetreden bij de OpenAI API: {str(e)}"
         )
-    except (json.JSONDecodeError, TypeError) as e:
+    except (json.JSONDecodeError, TypeError):
         logger.error("OpenAI returned invalid response", exc_info=True)
         raise ValueError("De AI-provider retourneerde een ongeldig analyseformaat.")

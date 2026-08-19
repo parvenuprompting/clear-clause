@@ -1,4 +1,5 @@
 import asyncio
+import json
 from types import SimpleNamespace
 
 import pytest
@@ -56,3 +57,26 @@ def test_merge_results_returns_single_result_without_provider_call(monkeypatch):
     )
 
     assert merged == result
+
+
+def test_large_documents_analyze_chunks_concurrently(monkeypatch):
+    analyzed_chunks = []
+
+    async def fake_analyze_chunk(chunk, mode, context):
+        analyzed_chunks.append(chunk)
+        return {"chunk": chunk}
+
+    async def fake_merge_results(results, mode):
+        return {"chunks": results}
+
+    monkeypatch.setattr(service, "count_tokens", lambda text: 15_001)
+    monkeypatch.setattr(service, "split_text", lambda text, max_tokens, overlap: ["one", "two"])
+    monkeypatch.setattr(service, "_analyze_chunk", fake_analyze_chunk)
+    monkeypatch.setattr(service, "_merge_results", fake_merge_results)
+
+    result = asyncio.run(
+        service.analyze_document("large document", AnalysisMode.ALGEMENE_VOORWAARDEN)
+    )
+
+    assert sorted(analyzed_chunks) == ["one", "two"]
+    assert json.loads(result)["chunks"] == [{"chunk": "one"}, {"chunk": "two"}]

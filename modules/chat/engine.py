@@ -47,7 +47,7 @@ REGELS:
     try:
         response = await openai_client.chat.completions.create(
             model="gpt-4o",  # Of gpt-3.5-turbo afhankelijk van budget/voorkeur
-            messages=messages,
+            messages=messages,  # type: ignore[arg-type]
             temperature=0.3,
             max_tokens=500
         )
