@@ -198,6 +198,7 @@ Frontend controleren:
 
 ```bash
 cd frontend
+npm test
 npm run lint
 npx tsc --noEmit
 npm run build
