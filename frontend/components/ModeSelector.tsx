@@ -25,14 +25,6 @@ const MODE_ICONS = {
     Tag
 };
 
-const MODE_COLORS = {
-    algemene_voorwaarden: "cyan",
-    privacy_beleid: "blue",
-    gebruikersvoorwaarden: "magenta",
-    brieven_analyse: "purple",
-    reactie_brief: "pink"
-};
-
 export function ModeSelector({ selectedMode, onSelectMode }: ModeSelectorProps) {
     const modes: AnalysisMode[] = [
         {

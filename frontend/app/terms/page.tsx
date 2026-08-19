@@ -120,7 +120,7 @@ Contact: info@clearclause.ai
 
                             <p className="text-cyan-100/70 mb-6 max-w-2xl mx-auto">
                                 Wij praktiseren wat wij prediken. Gebruik ClearClause om onze eigen algemene voorwaarden
-                                te analyseren op Dark Patterns en juridische risico's.
+                                te analyseren op Dark Patterns en juridische risico&apos;s.
                             </p>
 
                             <Button
@@ -144,7 +144,7 @@ Contact: info@clearclause.ai
                             </Button>
 
                             <p className="text-cyan-300/40 text-xs mt-4">
-                                Dit is een live demonstratie van ClearClause's analyse capabilities
+                                Dit is een live demonstratie van ClearClause&apos;s analyse capabilities
                             </p>
                         </CardContent>
                     </Card>

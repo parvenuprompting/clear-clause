@@ -32,7 +32,7 @@ export function LoadingState() {
                             </div>
                             <h3 className="font-semibold text-lg text-white">Jurist</h3>
                             <p className="text-sm text-center text-white/70">
-                                Analyseert clausules op juridische risico's
+                                Analyseert clausules op juridische risico&apos;s
                             </p>
                         </div>
 

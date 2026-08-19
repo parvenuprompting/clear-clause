@@ -4,12 +4,9 @@ import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
-import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Download, Briefcase, Tag } from "lucide-react";
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import { AnalysisPDF } from '@/components/export/AnalysisPDF';
+import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Briefcase, Tag } from "lucide-react";
 import type { AnalysisResponse } from "@/lib/api";
 import { ChatSection } from "./ChatSection";
 
@@ -56,9 +53,6 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
     }
     
     const privacyPercentage = (data.privacy_score / 10) * 100;
-    const currentDate = new Date().toLocaleDateString('nl-NL');
-    const fileName = `clearclause-analyse-${currentDate}.pdf`;
-
     const handleCopySummary = async () => {
         const summaryText = data.summary.join("\n• ");
         await navigator.clipboard.writeText(`ClearClause Analyse Samenvatting:\n\n• ${summaryText}`);
@@ -116,11 +110,11 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                         <AlertTriangle className="h-5 w-5 text-red-400" />
                         Rode Vlaggen ({data.red_flags.length})
                     </CardTitle>
-                    <CardDescription className="text-white/70">Gedetecteerde risico's en dark patterns</CardDescription>
+                    <CardDescription className="text-white/70">Gedetecteerde risico&apos;s en dark patterns</CardDescription>
                 </CardHeader>
                 <CardContent>
                     {data.red_flags.length === 0 ? (
-                        <p className="text-white/60">Geen significante risico's gedetecteerd.</p>
+                        <p className="text-white/60">Geen significante risico&apos;s gedetecteerd.</p>
                     ) : (
                         <Table>
                             <TableHeader>

@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Upload, FileText, Sparkles } from "lucide-react";
+import { Upload, FileText } from "lucide-react";
 import { ModeSelector } from "@/components/ModeSelector";
+import Image from "next/image";
 
 interface AnalysisFormProps {
     onSubmit: (text: string, documentName: string, mode: string, file?: File, context?: string) => void;
@@ -21,18 +22,6 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
     const [selectedMode, setSelectedMode] = useState(initialMode || "algemene_voorwaarden");
     const [context, setContext] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-
-    useEffect(() => {
-        if (initialMode) {
-            setSelectedMode(initialMode);
-        }
-    }, [initialMode]);
-
-    useEffect(() => {
-        if (initialText) {
-            setText(initialText);
-        }
-    }, [initialText]);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -70,7 +59,7 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
                     <Card className="w-full glass window-frame scanline">
                         <CardHeader className="text-center pb-2">
                             <div className="flex items-center justify-center mb-2">
-                                <img src="/logo-full.png" alt="ClearClause" className="h-16 w-auto" />
+                                <Image src="/logo-full.png" alt="ClearClause" width={240} height={96} className="h-16 w-auto" />
                             </div>
                         </CardHeader>
                         <CardContent>

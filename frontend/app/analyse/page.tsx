@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Link from "next/link";
+import Image from "next/image";
 
 function AnalysePageContent() {
     const searchParams = useSearchParams();
@@ -124,7 +125,7 @@ function AnalysePageContent() {
             <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-cyan-500/20">
                 <div className="container mx-auto px-4 py-4 flex justify-between items-center">
                     <Link href="/">
-                        <img src="/logo-full.png" alt="ClearClause Logo" className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" />
+                        <Image src="/logo-full.png" alt="ClearClause Logo" width={200} height={80} className="h-10 w-auto cursor-pointer hover:opacity-80 transition-opacity" priority />
                     </Link>
 
                     <Tooltip>

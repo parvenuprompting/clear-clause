@@ -129,7 +129,7 @@ export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "
                 {/* Red Flags */}
                 {data.red_flags && data.red_flags.length > 0 && (
                     <View style={styles.section}>
-                        <Text style={styles.sectionTitle}>Gedetecteerde Risico's</Text>
+                        <Text style={styles.sectionTitle}>Gedetecteerde Risico&apos;s</Text>
                         {data.red_flags.map((flag, index) => (
                             <View key={index} style={styles.redFlag}>
                                 <Text style={styles.redFlagTitle}>
@@ -137,7 +137,7 @@ export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "
                                 </Text>
                                 <Text style={styles.text}>{flag.explanation}</Text>
                                 <Text style={[styles.text, { fontSize: 9, fontStyle: 'italic' }]}>
-                                    "{flag.clause_citation}"
+                                    &quot;{flag.clause_citation}&quot;
                                 </Text>
                             </View>
                         ))}

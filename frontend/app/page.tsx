@@ -2,9 +2,15 @@
 
 import { Card } from "@/components/ui/card";
 import Link from "next/link";
+import Image from "next/image";
 
 export default function Landing() {
-  const modes = [
+  const modes: Array<{
+    value: string;
+    naam: string;
+    beschrijving?: string;
+    isDemo?: boolean;
+  }> = [
     {
       value: "algemene_voorwaarden",
       naam: "Algemene Voorwaarden",
@@ -61,7 +67,7 @@ export default function Landing() {
         <nav className="fixed top-0 left-0 right-0 z-50 glass border-b border-white/5 backdrop-blur-md">
           <div className="container mx-auto px-6 h-20 flex items-center justify-between">
              <div className="flex items-center gap-3">
-               <img src="/logo-full.png" alt="ClearClause Logo" className="h-12 w-auto" />
+                <Image src="/logo-full.png" alt="ClearClause Logo" width={200} height={80} className="h-12 w-auto" priority />
              </div>
              <div className="flex items-center gap-4">
                 <span className="text-xs font-mono text-cyan-500/50 bg-cyan-900/10 border border-cyan-500/20 px-2 py-1 rounded">BETA</span>
@@ -88,7 +94,7 @@ export default function Landing() {
             {/* Subtitle */}
             <p className="text-lg md:text-xl text-white/50 max-w-2xl mx-auto mb-10 leading-relaxed animate-fade-in-up delay-200">
               ClearClause vertaalt complexe kleine lettertjes naar heldere taal. 
-              Ontdek risico's, begrijp je rechten en teken nooit meer blind een contract.
+      Ontdek risico&apos;s, begrijp je rechten en teken nooit meer blind een contract.
             </p>
 
             {/* Visual Abstract Elements */}
@@ -101,15 +107,15 @@ export default function Landing() {
           <div className="container mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
               {modes.map((mode) => {
-                const href = (mode as any).isDemo 
+                const href = mode.isDemo
                   ? `/analyse?mode=algemene_voorwaarden&demo=true`
                   : `/analyse?mode=${mode.value}`;
                   
                 return (
                   <Link key={mode.value} href={href} className="h-full block">
-                    <Card className={`h-full premium-card glass window-frame cursor-pointer p-10 border-white/5 transition-all group ${(mode as any).isDemo ? 'border-cyan-500/50 bg-cyan-900/10' : ''}`}>
+                    <Card className={`h-full premium-card glass window-frame cursor-pointer p-10 border-white/5 transition-all group ${mode.isDemo ? 'border-cyan-500/50 bg-cyan-900/10' : ''}`}>
                       <div className="flex flex-col items-start text-left space-y-4 h-full">
-                        <div className={`h-px w-8 ${(mode as any).isDemo ? 'bg-cyan-400 w-16' : 'bg-cyan-500/50'} group-hover:w-full transition-all duration-500`} />
+                         <div className={`h-px w-8 ${mode.isDemo ? 'bg-cyan-400 w-16' : 'bg-cyan-500/50'} group-hover:w-full transition-all duration-500`} />
                         <h3 className="font-medium text-2xl tracking-tight text-white/90 group-hover:text-cyan-400">
                           {mode.naam}
                         </h3>
@@ -128,7 +134,7 @@ export default function Landing() {
 
         {/* Footer */}
         <footer className="relative py-12 px-4 border-t border-white/5 flex flex-col items-center gap-4">
-          <img src="/kairos-brain.png" alt="KairOS Logo" className="h-8 w-auto opacity-40 hover:opacity-100 transition-opacity" />
+          <Image src="/kairos-brain.png" alt="KairOS Logo" width={100} height={32} className="h-8 w-auto opacity-40 hover:opacity-100 transition-opacity" />
           <p className="text-white/20 text-xs tracking-[0.2em] uppercase text-center">
             Powered by KairOS Multi-Expert AI Analysis
           </p>
