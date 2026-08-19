@@ -1,7 +1,6 @@
-import os
 import json
 from typing import Dict, Any, Optional, List
-from openai import OpenAI, RateLimitError, APIConnectionError, APIError
+from openai import RateLimitError, APIConnectionError, APIError
 from .models import (
     AnalysisResponse,
     PrivacyAnalysisResponse,
@@ -12,12 +11,10 @@ from .models import (
 )
 from .utils import count_tokens, split_text
 from .modes import AnalysisMode
+from modules.shared.openai_client import openai_client
 
 # Import prompts
 from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief, zakelijke_onderhandelingen, web_deals
-
-# Initialiseer OpenAI client
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 # Mode naar Prompt mapping
 PROMPT_MAP = {
@@ -41,7 +38,7 @@ MODEL_MAP = {
     AnalysisMode.WEB_DEALS: AnalysisResponse,
 }
 
-def _analyze_chunk(
+async def _analyze_chunk(
     chunk: str,
     mode: AnalysisMode,
     context: Optional[str] = None
@@ -62,7 +59,7 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
     else:
         user_message = f"Analyseer dit document:\n\n{chunk}"
 
-    response = client.chat.completions.create(
+    response = await openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": system_prompt},
@@ -77,9 +74,12 @@ Genereer een professionele reactie brief op basis van bovenstaande informatie.""
         }
     )
     
-    return json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("De AI-provider retourneerde geen analyse-inhoud.")
+    return json.loads(content)
 
-def _merge_results(
+async def _merge_results(
     results: List[Dict[str, Any]],
     mode: AnalysisMode
 ) -> Dict[str, Any]:
@@ -133,7 +133,7 @@ def _merge_results(
 
 Geef alleen de 5 belangrijkste punten terug."""
         
-        summary_response = client.chat.completions.create(
+        summary_response = await openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "Je bent een juridische samenvatter. Maak beknopte punten."},
@@ -141,7 +141,7 @@ Geef alleen de 5 belangrijkste punten terug."""
             ]
         )
         
-        summary_text = summary_response.choices[0].message.content
+        summary_text = summary_response.choices[0].message.content or ""
         final_summary = [line.strip('- ').strip() for line in summary_text.split('\n') if line.strip()][:5]
         
         return {
@@ -186,7 +186,7 @@ Geef alleen de 5 belangrijkste punten terug."""
     else:
         return results[0]
 
-def analyze_document(
+async def analyze_document(
     text: str,
     mode: AnalysisMode = AnalysisMode.ALGEMENE_VOORWAARDEN,
     context: Optional[str] = None
@@ -218,16 +218,16 @@ def analyze_document(
             chunk_results = []
             for i, chunk in enumerate(chunks):
                 print(f"[*] Analyseren chunk {i+1}/{len(chunks)}")
-                result = _analyze_chunk(chunk, mode, context)
+                result = await _analyze_chunk(chunk, mode, context)
                 chunk_results.append(result)
             
             # REDUCE: Merge results
-            final_result = _merge_results(chunk_results, mode)
+            final_result = await _merge_results(chunk_results, mode)
             return json.dumps(final_result, ensure_ascii=False)
         
         # Single chunk analysis
         else:
-            result = _analyze_chunk(text, mode, context)
+            result = await _analyze_chunk(text, mode, context)
             return json.dumps(result, ensure_ascii=False)
         
     except RateLimitError as e:
@@ -249,3 +249,6 @@ def analyze_document(
         raise ValueError(
             f"Er is een fout opgetreden bij de OpenAI API: {str(e)}"
         )
+    except (json.JSONDecodeError, TypeError) as e:
+        print(f"[!] Ongeldige AI-response: {e}")
+        raise ValueError("De AI-provider retourneerde een ongeldig analyseformaat.")

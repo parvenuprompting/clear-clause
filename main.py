@@ -163,7 +163,7 @@ async def handle_analysis(
         print(f"[*] Analyse verzoek: {request.document_name} | Mode: {mode.value}")
         
         # Roep analyze_document aan met mode en optionele context
-        result_json = analyze_document(
+        result_json = await analyze_document(
             text=request.text,
             mode=mode,
             context=request.context
@@ -174,13 +174,14 @@ async def handle_analysis(
         raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         print(f"[!] Fout: {e}")
-        raise HTTPException(status_code=500, detail=f"Interne Server Fout: {str(e)}")
+        print(f"[!] Fout tijdens analyse: {e}")
+        raise HTTPException(status_code=500, detail="Analyse mislukt. Probeer het later opnieuw.")
 @app.post("/analyze-file")
 async def handle_file_analysis(
+    req: Request,
     file: UploadFile = File(...),
     mode: str = Form("algemene_voorwaarden"),
     document_name: Optional[str] = Form(None),
-    req: Request = None,
     token: TokenData = Depends(verify_token)
 ):
     """
@@ -216,7 +217,7 @@ async def handle_file_analysis(
         if content_type == "application/pdf":
             extracted_text = extract_text_from_pdf(content)
         elif content_type and content_type.startswith("image/"):
-            extracted_text = extract_text_from_image(content)
+            extracted_text = await extract_text_from_image(content)
         else:
             raise HTTPException(status_code=400, detail="Alleen PDF of afbeeldingen zijn toegestaan.")
 
@@ -224,7 +225,7 @@ async def handle_file_analysis(
             raise HTTPException(status_code=400, detail="Geen tekst gevonden in het bestand.")
 
         # Analyseer de geëxtraheerde tekst
-        result_json = analyze_document(
+        result_json = await analyze_document(
             text=extracted_text,
             mode=analysis_mode,
             context=None
@@ -244,7 +245,7 @@ async def handle_file_analysis(
 @app.post("/chat")
 async def handle_chat(request: ChatRequest, token: TokenData = Depends(verify_token)):
     try:
-        response = generate_chat_response(
+        response = await generate_chat_response(
             question=request.question,
             context_text=request.context_text,
             history=request.history

@@ -1,11 +1,6 @@
 import fitz  # PyMuPDF
 import base64
-from openai import OpenAI
-import os
-from PIL import Image
-import io
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from modules.shared.openai_client import openai_client
 
 def extract_text_from_pdf(pdf_bytes: bytes) -> str:
     """Extraheert tekst uit een PDF bestand."""
@@ -15,14 +10,14 @@ def extract_text_from_pdf(pdf_bytes: bytes) -> str:
         text += page.get_text()
     return text
 
-def extract_text_from_image(image_bytes: bytes) -> str:
+async def extract_text_from_image(image_bytes: bytes) -> str:
     """
     Gebruikt GPT-4o Vision om tekst uit een screenshot of afbeelding te halen.
     Ideaal voor online deals waarbij tekst vaak in afbeeldingen staat.
     """
     base64_image = base64.b64encode(image_bytes).decode('utf-8')
     
-    response = client.chat.completions.create(
+    response = await openai_client.chat.completions.create(
         model="gpt-4o",
         messages=[
             {
@@ -45,4 +40,7 @@ def extract_text_from_image(image_bytes: bytes) -> str:
         max_tokens=2000
     )
     
-    return response.choices[0].message.content
+    content = response.choices[0].message.content
+    if not content:
+        raise ValueError("De OCR-provider retourneerde geen tekst.")
+    return content

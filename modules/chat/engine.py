@@ -1,16 +1,12 @@
-from openai import OpenAI
-import os
 from typing import List, Literal
 from pydantic import BaseModel
-import json
-
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+from modules.shared.openai_client import openai_client
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
 
-def generate_chat_response(
+async def generate_chat_response(
     question: str, 
     context_text: str, 
     history: List[ChatMessage]
@@ -45,13 +41,16 @@ REGELS:
     messages.append({"role": "user", "content": question})
 
     try:
-        response = client.chat.completions.create(
+        response = await openai_client.chat.completions.create(
             model="gpt-4o",  # Of gpt-3.5-turbo afhankelijk van budget/voorkeur
             messages=messages,
             temperature=0.3,
             max_tokens=500
         )
-        return response.choices[0].message.content
+        content = response.choices[0].message.content
+        if not content:
+            raise ValueError("De chat-provider retourneerde geen antwoord.")
+        return content
     except Exception as e:
         print(f"Chat error: {e}")
-        return "Er is een fout opgetreden bij het verwerken van uw vraag. Probeer het later opnieuw."
+        raise ValueError("De chat kon niet worden verwerkt.") from e

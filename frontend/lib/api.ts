@@ -52,13 +52,18 @@ export interface AnalyzeRequest {
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
+const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
+
+function getAuthHeaders(): Record<string, string> {
+    return API_TOKEN ? { Authorization: `Bearer ${API_TOKEN}` } : {};
+}
 
 export async function analyzeDocument(request: AnalyzeRequest): Promise<AnalysisResponse> {
     const response = await fetch(`${API_BASE_URL}/analyze`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer mock-token' // Development Mock Token
+            ...getAuthHeaders(),
         },
         body: JSON.stringify(request),
     });
@@ -91,7 +96,7 @@ export async function askFollowUp(request: ChatRequest): Promise<ChatResponse> {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': 'Bearer mock-token' // Development Mock Token
+            ...getAuthHeaders(),
         },
         body: JSON.stringify(request),
     });
@@ -113,7 +118,7 @@ export async function analyzeFile(file: File, mode: string, documentName?: strin
     const response = await fetch(`${API_BASE_URL}/analyze-file`, {
         method: 'POST',
         headers: {
-             'Authorization': 'Bearer mock-token' // Development Mock Token
+             ...getAuthHeaders(),
         },
         body: formData, // No Content-Type header needed for FormData
     });
