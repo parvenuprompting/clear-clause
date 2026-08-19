@@ -227,6 +227,22 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                 </Card>
             </div>
 
+            {data.draft_letter && (
+                <Card className="glass glass-hover border-white/20">
+                    <CardHeader>
+                        <CardTitle className="text-white">Conceptbrief</CardTitle>
+                        <CardDescription className="text-white/70">
+                            Controleer deze concepttekst zorgvuldig voordat u hem gebruikt.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <pre className="whitespace-pre-wrap font-sans text-slate-100 leading-relaxed">
+                            {data.draft_letter}
+                        </pre>
+                    </CardContent>
+                </Card>
+            )}
+
             <ChatSection contextText={analyzedText} />
         </div>
     );

@@ -1,213 +1,211 @@
+# ClearClause
+
 <div align="center">
   <img src="frontend/public/logo-full.png" height="80" alt="ClearClause Logo" />
-  <h1>ClearClause MVP</h1>
-  <p><em>AI-Powered Legal Guardian</em></p>
+  <p><strong>AI-assisted legal document analysis</strong></p>
+  <p>Maak complexe juridische documenten begrijpelijker en ontdek risico's voordat u tekent.</p>
 </div>
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center"><strong>Home & Modus Selectie</strong></td>
-      <td align="center"><strong>Document Analyse</strong></td>
-    </tr>
-    <tr>
-      <td><img src="frontend/public/docs/home.png" width="400" /></td>
-      <td><img src="frontend/public/docs/input.png" width="400" /></td>
-    </tr>
-    <tr>
-      <td align="center"><strong>Multi-Expert Analyse</strong></td>
-      <td align="center"><strong>Juridisch Dashboard</strong></td>
-    </tr>
-    <tr>
-      <td><img src="frontend/public/docs/loading.png" width="400" /></td>
-      <td><img src="frontend/public/docs/results.png" width="400" /></td>
-    </tr>
-  </table>
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/status-MVP-f59e0b" alt="Project status: MVP" />
+  <img src="https://img.shields.io/badge/Python-3.11%2B-3776ab" alt="Python 3.11 or newer" />
+  <img src="https://img.shields.io/badge/FastAPI-backend-009688" alt="FastAPI backend" />
+  <img src="https://img.shields.io/badge/Next.js-16.1.1-000000" alt="Next.js 16.1.1" />
+  <img src="https://img.shields.io/badge/React-19.2.3-61dafb" alt="React 19.2.3" />
+  <img src="https://img.shields.io/badge/Docker-supported-2496ed" alt="Docker supported" />
+</p>
 
-Een AI-gedreven juridische analyse tool die algemene voorwaarden en privacyverklaringen analyseert met behulp van drie gespecialiseerde persona's: De Jurist, De Ethicus en De Vertaler.
+![ClearClause home](frontend/public/docs/home.png)
 
-## 🏗️ Architectuur
+ClearClause analyseert juridische tekst, PDF's en afbeeldingen met mode-specifieke prompts en gestructureerde JSON-output. De tool is bedoeld voor uitleg, risico-identificatie en voorbereiding. ClearClause vervangt geen advocaat of juridisch advies.
 
-### Backend (FastAPI + GPT-4o)
+## Functies
 
-- **Model**: `gpt-4o` voor sterke juridische redeneerkracht
-- **Dark Patterns Lexicon**: 11 gedefinieerde risico-patronen
-- **Structured Output**: JSON Schema validatie via Pydantic
-- **Token Management**: Automatische context window checks
+- Analyse van geplakte juridische tekst
+- Upload en tekstextractie van PDF's
+- OCR van afbeeldingen en screenshots via GPT-4o Vision
+- Mode-specifieke analyse voor verschillende juridische situaties
+- Rode vlaggen met bronpassage, risico-type, uitleg en ernstscore
+- Samenvatting, aanbevelingen en score in een dashboard
+- Maximaal drie contextuele vervolgvragen per analyse
+- PDF-export van analyse-resultaten
+- Request-validatie, uploadlimieten, JWT-structuur en rate limiting
 
-### Frontend (Next.js 14)
+## Analysemodi
 
-- **Framework**: Next.js met App Router
-- **Styling**: Tailwind CSS + Shadcn/UI
-- **Componenten**: Card, Table, Badge, Progress, Textarea
-- **Iconen**: Lucide React
+| Modus | Doel |
+| --- | --- |
+| Algemene voorwaarden | Dark patterns en juridische risico's detecteren |
+| Privacybeleid | GDPR-compliance, datacategorieen en ontbrekende elementen analyseren |
+| Gebruikersvoorwaarden | Gebruikersrechten, beperkingen en fairness beoordelen |
+| Brievenanalyse | Urgentie, claims, deadlines en reactie-strategie analyseren |
+| Reactiebrief-generator | Een professionele conceptreactie opstellen |
+| Zakelijke onderhandelingen | Dealrisico's, balans en onderhandelingstips beoordelen |
+| Webdeals en aanbiedingen | Verborgen kosten en oneerlijke online voorwaarden signaleren |
 
-## 🚀 Installatie
+## Architectuur
 
-### Backend Setup
-
-```bash
-# Navigeer naar de root
-cd clear-clause
-
-# Activeer de virtual environment
-source .venv/bin/activate
-
-# Installeer dependencies
-pip install -r requirements.txt
-
-# Configureer je OpenAI API key
-# Bewerk .env en vervang de placeholder
-OPENAI_API_KEY=sk-jouw-echte-key-hier
-
-# Start de API
-python main.py
+```text
+clear-clause/
+├── main.py                         # FastAPI-app en API-routes
+├── modules/
+│   ├── analysis/
+│   │   ├── models.py               # Pydantic response-modellen
+│   │   ├── service.py              # GPT-4o-analyse en chunk merging
+│   │   ├── file_processor.py       # PDF-extractie en Vision OCR
+│   │   ├── modes.py                # Beschikbare analysemodi
+│   │   ├── prompts/                # Mode-specifieke prompts
+│   │   └── utils.py                # Token counting en chunking
+│   ├── auth/                       # JWT-validatie en rate limiting
+│   └── chat/                       # Contextuele vervolgchat
+├── frontend/
+│   ├── app/                        # Next.js App Router-pagina's
+│   ├── components/                 # Analyseformulier en dashboards
+│   └── lib/api.ts                  # Typed API-client
+├── nginx/                          # Reverse proxy-configuratie
+├── Dockerfile
+└── docker-compose.yml
 ```
-
-De API draait nu op `http://localhost:8000`
-
-### Frontend Setup
-
-```bash
-# Navigeer naar de frontend
-cd frontend
-
-# Installeer dependencies
-npm install
-
-# Start de development server
-npm run dev
-```
-
-De frontend draait nu op `http://localhost:3000`
-
-## 📋 Features
 
 ### Backend
 
-- ✅ **Lexicon-gebaseerde detectie**: 11 Dark Patterns (forced_continuity, confirmshaming, etc.)
-- ✅ **Drie-Persona Analyse**: Jurist, Ethicus, Vertaler
-- ✅ **Structured JSON Output**: Gevalideerd via Pydantic
-- ✅ **CORS Support**: Geconfigureerd voor Next.js frontend
-- ✅ **Health Endpoint**: `/health` voor monitoring
-- ✅ **Token Counting**: Preventieve checks voor context window
+- FastAPI
+- OpenAI GPT-4o en GPT-4o Vision
+- Pydantic structured output
+- PyMuPDF voor PDF-tekstextractie
+- `tiktoken` voor token counting en documentchunking
+- JWT-validatie met `python-jose`
 
 ### Frontend
 
-- ✅ **Intuïtief Formulier**: Tekst input + document naam
-- ✅ **Loading Visualisatie**: Drie experts animatie
-- ✅ **4-Kolommen Dashboard**:
-  - Samenvatting (max 5 punten)
-  - Rode Vlaggen Tabel (met severity badges)
-  - Suggesties (genummerde actielijst)
-  - Privacy Score (circulaire gauge)
-- ✅ **Error Handling**: Gebruiksvriendelijke foutmeldingen
-- ✅ **Responsive Design**: Mobile-first approach
+- Next.js 16 met App Router
+- React 19 en TypeScript
+- Tailwind CSS 4
+- Radix UI en Lucide React
+- `@react-pdf/renderer` voor PDF-export
 
-## 🔒 Beveiliging (Kairos Protocol)
+## Snel starten
 
-Dit project volgt de **Kairos Grondwet**:
+### Vereisten
 
-- ✅ Geen hardcoded secrets (`.env` voor API keys)
-- ✅ Input validatie via Pydantic
-- ✅ CORS configuratie voor specifieke origins
-- ✅ `.gitignore` bevat alle gevoelige bestanden
+- Python 3.11 of nieuwer
+- Node.js 20 of nieuwer
+- npm
+- Een OpenAI API-key voor echte analyses
 
-## 📚 API Endpoints
+### Backend lokaal starten
 
-### `GET /health`
-
-Health check endpoint.
-
-**Response:**
-
-```json
-{
-  "status": "healthy",
-  "service": "ClearClause AI"
-}
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+cp .env.example .env
 ```
 
-### `POST /analyze`
+Vul daarna `OPENAI_API_KEY` in `.env` in. Start de API met:
 
-Analyseer een juridisch document.
+```bash
+python3 main.py
+```
 
-**Request:**
+De backend draait standaard op `http://127.0.0.1:8000`.
+
+### Frontend lokaal starten
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+De frontend draait standaard op `http://localhost:3000`.
+
+Voor een andere backend-url kan `NEXT_PUBLIC_API_URL` worden ingesteld:
+
+```bash
+NEXT_PUBLIC_API_URL=http://127.0.0.1:8000 npm run dev
+```
+
+## Docker
+
+Configureer `.env` met minimaal:
+
+```env
+OPENAI_API_KEY=sk-jouw-api-key
+SECRET_KEY=gebruik-een-lange-willekeurige-productiesleutel
+ALGORITHM=HS256
+ENVIRONMENT=production
+```
+
+Start vervolgens de volledige stack:
+
+```bash
+docker compose up --build
+```
+
+De Nginx gateway is beschikbaar op `http://localhost`.
+
+## API
+
+| Methode | Endpoint | Beschrijving |
+| --- | --- | --- |
+| `GET` | `/health` | Health check |
+| `GET` | `/modes` | Beschikbare analysemodi en metadata |
+| `POST` | `/analyze` | Geplakte tekst analyseren |
+| `POST` | `/analyze-file` | PDF of afbeelding analyseren |
+| `POST` | `/chat` | Vervolgvraag over documentcontext beantwoorden |
+
+Voorbeeld van `POST /analyze`:
 
 ```json
 {
   "text": "De volledige tekst van het document...",
-  "document_name": "Algemene Voorwaarden - Bedrijf X"
+  "document_name": "Algemene voorwaarden - Bedrijf X",
+  "mode": "algemene_voorwaarden",
+  "context": null
 }
 ```
 
-**Response:**
+De response bevat een uniforme dashboardvorm met onder andere `mode`, `summary`, `red_flags`, `suggestions`, `privacy_score` en `privacy_motivatie`. Mode-specifieke velden blijven daarnaast beschikbaar in dezelfde response.
 
-```json
-{
-  "summary": ["Punt 1", "Punt 2", ...],
-  "red_flags": [
-    {
-      "clause_citation": "Exacte tekst van de clausule",
-      "risk_type": "forced_continuity",
-      "explanation": "Begrijpelijke uitleg",
-      "severity_score": 8
-    }
-  ],
-  "suggestions": ["Suggestie 1", "Suggestie 2", ...],
-  "privacy_score": 6,
-  "privacy_motivatie": "Motivatie voor de score"
-}
+## Security en privacy
+
+- Zet nooit echte secrets in Git.
+- Gebruik in productie altijd een sterke `SECRET_KEY`.
+- Development accepteert uitsluitend de development mock-auth-flow.
+- Requests zijn begrensd op 1 MB.
+- Tekstvelden en chatgeschiedenis hebben expliciete limieten.
+- De backend gebruikt server-side rate limiting per IP; de huidige implementatie is in-memory en bedoeld voor de MVP.
+- Gevoelige juridische documenten kunnen naar de geconfigureerde AI-provider worden verzonden. Voeg geen documenten toe zonder het privacy- en verwerkingsbeleid te controleren.
+- ClearClause geeft geen formeel juridisch advies en vervangt geen advocaat.
+
+## Development checks
+
+Backend syntax controleren:
+
+```bash
+python3 -m compileall -q main.py modules
 ```
 
-## 🎨 Dark Patterns Lexicon
+Frontend controleren:
 
-Het systeem detecteert de volgende patronen:
-
-1. **impliciete_toestemming**: Gebruik = akkoord zonder actieve handeling
-2. **forced_continuity**: Automatische omzetting gratis → betaald
-3. **confirmshaming**: Manipulatieve taal bij weigering
-4. **verborgen_derden**: Vage omschrijving van datadeling
-5. **gedwongen_arbitrage**: Blokkeren van toegang tot rechter
-6. **trick_wording**: Dubbele ontkenningen
-7. **bait_and_switch**: Andere actie dan geadverteerd
-8. **hidden_costs**: Kosten pas zichtbaar bij checkout
-9. **roach_motel**: Makkelijk in, moeilijk uit
-10. **privacy_zuckering**: Verleiden tot oversharing
-11. **sneak_into_basket**: Automatisch toegevoegde items
-
-## 🛠️ Development
-
-### Backend Structuur
-
-```
-modules/
-└── analysis/
-    ├── __init__.py
-    ├── models.py      # Pydantic schemas
-    ├── service.py     # LLM logica
-    ├── utils.py       # Token counting
-    └── lexicon.py     # Dark Patterns definitie
+```bash
+cd frontend
+npm run lint
+npx tsc --noEmit
+npm run build
 ```
 
-### Frontend Structuur
+## Status en roadmap
 
-```
-app/
-├── page.tsx           # Hoofdpagina
-└── globals.css        # Styling + animaties
+ClearClause is momenteel een MVP. De eerstvolgende technische prioriteiten zijn:
 
-components/
-├── ui/                # Shadcn components
-├── AnalysisForm.tsx
-├── LoadingState.tsx
-└── ResultatenDashboard.tsx
+1. Backendtests voor validatie, uploads, modes en response-normalisatie.
+2. Volledige frontend typecheck en mode-specifieke dashboards.
+3. Bronverwijzingen en betrouwbaarheidssignalen in analyse-resultaten.
+4. Privacybeleid, accounts en schaalbare quota.
+5. Observability, kostenmeting en productiehardening.
 
-lib/
-└── api.ts             # API client
-```
+## Licentie
 
-## 📝 Licentie
-
-Dit is een MVP voor educatieve doeleinden.
+Dit project is een MVP voor educatieve en experimentele doeleinden. Er is momenteel geen aparte open-source licentie gepubliceerd.

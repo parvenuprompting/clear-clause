@@ -1,13 +1,13 @@
 from openai import OpenAI
 import os
-from typing import List, Optional
+from typing import List, Literal
 from pydantic import BaseModel
 import json
 
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 class ChatMessage(BaseModel):
-    role: str
+    role: Literal["user", "assistant", "system"]
     content: str
 
 def generate_chat_response(

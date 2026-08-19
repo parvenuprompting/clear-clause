@@ -113,7 +113,7 @@ export function AnalysisForm({ onSubmit, isLoading, initialMode, initialText }: 
                                         <TooltipTrigger asChild>
                                             <Button
                                                 type="submit"
-                                                disabled={!text.trim() || isLoading}
+                                                disabled={(!text.trim() && !selectedFile) || isLoading}
                                                 className="bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-400 hover:to-blue-400 text-black font-bold border-0 shadow-lg shadow-cyan-500/50 hover:shadow-cyan-400/70 transition-all hover:scale-105"
                                                 size="lg"
                                             >

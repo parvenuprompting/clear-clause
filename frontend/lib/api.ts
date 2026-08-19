@@ -6,12 +6,25 @@ export interface RedFlag {
 }
 
 export interface AnalysisResponse {
+    mode?: string;
     summary: string[];
     red_flags: RedFlag[];
     suggestions: string[];
     privacy_score: number;
     privacy_motivatie: string;
     extracted_text?: string;
+    gdpr_compliance_score?: number;
+    compliance_gaps?: string[];
+    recommendations?: string[];
+    restrictions?: string[];
+    fairness_score?: number;
+    urgency_level?: number;
+    action_points?: string[];
+    legal_claims?: string[];
+    response_strategy?: string;
+    draft_letter?: string;
+    key_points?: string[];
+    next_steps?: string[];
 }
 
 export interface AnalyzeRequest {

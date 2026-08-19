@@ -7,12 +7,16 @@ from pydantic import BaseModel
 
 # Configuratie laden
 class SecurityConfig:
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "dev_secret_key_do_not_use_in_prod")
+    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
+    SECRET_KEY: str = os.getenv("SECRET_KEY", "")
     ALGORITHM: str = os.getenv("ALGORITHM", "HS256")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
-    ENVIRONMENT: str = os.getenv("ENVIRONMENT", "production") # Default to production for safety
 
 settings = SecurityConfig()
+if settings.ENVIRONMENT != "development" and not settings.SECRET_KEY:
+    raise RuntimeError("SECRET_KEY is verplicht buiten development.")
+if settings.ENVIRONMENT == "development" and not settings.SECRET_KEY:
+    settings.SECRET_KEY = "development-only-secret"
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token", auto_error=False)
 
