@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from pydantic import ValidationError
 
 from main import app
+from modules.api import routes
 from modules.api.models import ChatRequest, DocumentRequest
 from modules.analysis.modes import AnalysisMode
 from modules.api.presentation import add_presentational_fields
@@ -29,6 +30,21 @@ def test_analyze_rejects_unknown_mode_before_calling_provider():
 
     assert response.status_code == 400
     assert "Ongeldige mode" in response.json()["detail"]
+
+
+def test_analyze_hides_unexpected_provider_errors(monkeypatch):
+    async def raise_provider_error(**kwargs):
+        raise RuntimeError("internal provider secret")
+
+    monkeypatch.setattr(routes, "analyze_document", raise_provider_error)
+    response = client.post(
+        "/analyze",
+        json={"text": "Een document", "mode": "algemene_voorwaarden"},
+    )
+
+    assert response.status_code == 500
+    assert response.json()["detail"] == "Analyse mislukt. Probeer het later opnieuw."
+    assert "internal provider secret" not in response.text
 
 
 def test_document_request_rejects_empty_text():

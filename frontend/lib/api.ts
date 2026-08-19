@@ -11,24 +11,39 @@ export interface UserRightStatus {
     is_present: boolean;
 }
 
-export interface AnalysisResponse {
-    mode?: string;
+interface AnalysisResultBase {
     summary: string[];
     red_flags: RedFlag[];
     suggestions: string[];
     privacy_score: number;
     privacy_motivatie: string;
     extracted_text?: string;
+}
+
+export interface GeneralAnalysisResult extends AnalysisResultBase {
+    mode: "algemene_voorwaarden" | "zakelijke_onderhandelingen" | "web_deals";
+}
+
+export interface PrivacyAnalysisResult extends AnalysisResultBase {
+    mode: "privacy_beleid";
     gdpr_compliance_score?: number;
     compliance_gaps?: string[];
     recommendations?: string[];
     data_categories?: string[];
     third_parties?: string[];
-    user_rights?: UserRightStatus[] | string[];
     retention_policies?: string | null;
+}
+
+export interface UserTermsAnalysisResult extends AnalysisResultBase {
+    mode: "gebruikersvoorwaarden";
+    user_rights?: UserRightStatus[] | string[];
     restrictions?: string[];
     termination_policy?: string;
     fairness_score?: number;
+}
+
+export interface LetterAnalysisResult extends AnalysisResultBase {
+    mode: "brieven_analyse";
     urgency_level?: number;
     letter_type?: string;
     sentiment?: string;
@@ -37,12 +52,23 @@ export interface AnalysisResponse {
     legal_claims?: string[];
     risk_assessment?: string;
     response_strategy?: string;
+}
+
+export interface ResponseLetterAnalysisResult extends AnalysisResultBase {
+    mode: "reactie_brief";
     draft_letter?: string;
     tone?: string;
     key_points?: string[];
     next_steps?: string[];
     legal_review_needed?: boolean;
 }
+
+export type AnalysisResponse =
+    | GeneralAnalysisResult
+    | PrivacyAnalysisResult
+    | UserTermsAnalysisResult
+    | LetterAnalysisResult
+    | ResponseLetterAnalysisResult;
 
 export interface AnalyzeRequest {
     text: string;

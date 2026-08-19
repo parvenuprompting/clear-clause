@@ -48,8 +48,8 @@ function DetailList({ items, emptyLabel = "Geen gegevens beschikbaar." }: { item
     );
 }
 
-function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) {
-    if (mode === "privacy_beleid") {
+function ModeDetails({ data }: { data: AnalysisResponse }) {
+    if (data.mode === "privacy_beleid") {
         return (
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
@@ -76,7 +76,7 @@ function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) 
         );
     }
 
-    if (mode === "gebruikersvoorwaarden") {
+    if (data.mode === "gebruikersvoorwaarden") {
         return (
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
@@ -113,7 +113,7 @@ function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) 
         );
     }
 
-    if (mode === "brieven_analyse") {
+    if (data.mode === "brieven_analyse") {
         return (
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
@@ -140,7 +140,7 @@ function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) 
         );
     }
 
-    if (mode === "reactie_brief") {
+    if (data.mode === "reactie_brief") {
         return (
             <Card className="glass glass-hover border-white/20">
                 <CardHeader>
@@ -168,10 +168,11 @@ function ModeDetails({ data, mode }: { data: AnalysisResponse; mode?: string }) 
 
 export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDashboardProps) {
     const [copied, setCopied] = useState(false);
+    const activeMode = data.mode || mode;
     
     // Determine context based on mode
-    const isNegotiation = mode === "zakelijke_onderhandelingen";
-    const isWebDeal = mode === "web_deals";
+    const isNegotiation = activeMode === "zakelijke_onderhandelingen";
+    const isWebDeal = activeMode === "web_deals";
     
     let scoreLabel = "Privacy Score";
     let scoreDescription = "Beoordeling van privacyvriendelijkheid";
@@ -185,13 +186,13 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
         scoreLabel = "Consumer Safety Score";
         scoreDescription = "Beoordeling van transparantie en eerlijkheid";
         ScoreIcon = Tag;
-    } else if (mode === "privacy_beleid") {
+    } else if (activeMode === "privacy_beleid") {
         scoreLabel = "GDPR Score";
         scoreDescription = "Beoordeling van GDPR-compliance";
-    } else if (mode === "gebruikersvoorwaarden") {
+    } else if (activeMode === "gebruikersvoorwaarden") {
         scoreLabel = "Fairness Score";
         scoreDescription = "Balans tussen platform en gebruiker";
-    } else if (mode === "brieven_analyse") {
+    } else if (activeMode === "brieven_analyse") {
         scoreLabel = "Urgentiescore";
         scoreDescription = "Hoe snel actie nodig kan zijn";
     }
@@ -294,7 +295,7 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                 </CardContent>
             </Card>
 
-            <ModeDetails data={data} mode={mode} />
+            <ModeDetails data={data} />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {/* Suggesties */}
@@ -367,7 +368,7 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                 </Card>
             </div>
 
-            {data.draft_letter && (
+            {data.mode === "reactie_brief" && data.draft_letter && (
                 <Card className="glass glass-hover border-white/20">
                     <CardHeader>
                         <CardTitle className="text-white">Conceptbrief</CardTitle>

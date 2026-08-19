@@ -17,13 +17,6 @@ def count_tokens(text: str, model: str = "gpt-4o") -> int:
     """
     return len(_encoding_for_model(model).encode(text))
 
-def check_context_window(text: str, max_tokens: int = 120000) -> bool:
-    """
-    Controleer of de tekst binnen de context window past.
-    """
-    token_count = count_tokens(text)
-    return token_count <= max_tokens
-
 def split_text(text: str, max_tokens: int = 15000, overlap: int = 500) -> List[str]:
     """
     Split tekst in chunks op logische punten (paragrafen, zinnen).
