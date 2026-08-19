@@ -1,10 +1,14 @@
 from typing import List, Literal
 from pydantic import BaseModel
 from modules.shared.openai_client import openai_client
+from modules.shared.logging import get_logger
 
 class ChatMessage(BaseModel):
     role: Literal["user", "assistant", "system"]
     content: str
+
+
+logger = get_logger(__name__)
 
 async def generate_chat_response(
     question: str, 
@@ -52,5 +56,5 @@ REGELS:
             raise ValueError("De chat-provider retourneerde geen antwoord.")
         return content
     except Exception as e:
-        print(f"Chat error: {e}")
+        logger.exception("Chat provider request failed")
         raise ValueError("De chat kon niet worden verwerkt.") from e

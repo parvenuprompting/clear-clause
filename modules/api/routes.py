@@ -12,10 +12,12 @@ from modules.api.presentation import add_presentational_fields
 from modules.auth.rate_limiter import InMemoryRateLimiter
 from modules.auth.security import TokenData, verify_token
 from modules.chat.engine import generate_chat_response
+from modules.shared.logging import get_logger
 
 
 router = APIRouter()
 rate_limiter = InMemoryRateLimiter(limit=DAILY_LIMIT)
+logger = get_logger(__name__)
 
 
 def _client_ip(request: Request) -> str:
@@ -57,7 +59,7 @@ async def handle_analysis(
         except ValueError:
             raise HTTPException(status_code=400, detail=f"Ongeldige mode: {request.mode}. Gebruik /modes endpoint voor beschikbare opties.")
 
-        print(f"[*] Analyse verzoek: {request.document_name} | Mode: {mode.value}")
+        logger.info("Analyse request received", extra={"document_name": request.document_name, "mode": mode.value})
         result_json = await analyze_document(text=request.text, mode=mode, context=request.context)
         return add_presentational_fields(json.loads(result_json), mode)
     except HTTPException:
@@ -65,7 +67,7 @@ async def handle_analysis(
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     except Exception as exc:
-        print(f"[!] Fout tijdens analyse: {exc}")
+        logger.exception("Analysis request failed")
         raise HTTPException(status_code=500, detail="Analyse mislukt. Probeer het later opnieuw.") from exc
 
 
@@ -92,7 +94,7 @@ async def handle_file_analysis(
 
         filename = document_name or file.filename
         content_type = file.content_type
-        print(f"[*] Bestandsanalyse: {filename} ({content_type}) | Mode: {mode}")
+        logger.info("File analysis request received", extra={"document_filename": filename, "content_type": content_type, "mode": mode})
 
         if content_type == "application/pdf":
             extracted_text = extract_text_from_pdf(content)
@@ -111,7 +113,7 @@ async def handle_file_analysis(
     except HTTPException:
         raise
     except Exception as exc:
-        print(f"[!] File Error: {exc}")
+        logger.exception("File analysis request failed")
         raise HTTPException(status_code=500, detail="Bestandsanalyse mislukt.") from exc
 
 
@@ -125,5 +127,5 @@ async def handle_chat(request: ChatRequest, token: TokenData = Depends(verify_to
         )
         return {"answer": response}
     except Exception as exc:
-        print(f"[!] Chat Fout: {exc}")
+        logger.exception("Chat request failed")
         raise HTTPException(status_code=500, detail="Chatverzoek mislukt.") from exc

@@ -4,6 +4,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from pydantic import BaseModel
+from modules.shared.logging import get_logger
 
 # Configuratie laden
 class SecurityConfig:
@@ -13,6 +14,7 @@ class SecurityConfig:
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30
 
 settings = SecurityConfig()
+logger = get_logger(__name__)
 if settings.ENVIRONMENT != "development" and not settings.SECRET_KEY:
     raise RuntimeError("SECRET_KEY is verplicht buiten development.")
 if settings.ENVIRONMENT == "development" and not settings.SECRET_KEY:
@@ -32,10 +34,10 @@ async def verify_token(token: str = Depends(oauth2_scheme)):
     
     # 1. Mock Auth voor Development
     if settings.ENVIRONMENT == "development":
-        print(f"[DEBUG] Verifying token: {token} | Env: {settings.ENVIRONMENT}")
+        logger.debug("Verifying development token", extra={"environment": settings.ENVIRONMENT})
         # In dev mode, als er geen token is of het is een dummy waarde, laten we het toe met een waarschuwing
         if not token or token == "mock-token":
-            print("[WARN] Development Mode: Mock Auth Active")
+            logger.warning("Development mock authentication is active")
             return TokenData(username="dev_user")
     
     # 2. Stricte Validatie (Production / Staging)

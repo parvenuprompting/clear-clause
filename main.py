@@ -4,6 +4,10 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from modules.shared.logging import configure_logging
+
+configure_logging()
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 

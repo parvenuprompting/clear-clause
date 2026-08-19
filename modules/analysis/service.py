@@ -12,6 +12,7 @@ from .models import (
 from .utils import count_tokens, split_text
 from .modes import AnalysisMode
 from modules.shared.openai_client import openai_client
+from modules.shared.logging import get_logger
 
 # Import prompts
 from .prompts import algemene_voorwaarden, privacy_beleid, gebruikersvoorwaarden, brieven_analyse, reactie_brief, zakelijke_onderhandelingen, web_deals
@@ -26,6 +27,7 @@ PROMPT_MAP = {
     AnalysisMode.ZAKELIJKE_ONDERHANDELINGEN: zakelijke_onderhandelingen.SYSTEM_PROMPT,
     AnalysisMode.WEB_DEALS: web_deals.SYSTEM_PROMPT,
 }
+logger = get_logger(__name__)
 
 # Mode naar Model mapping
 MODEL_MAP = {
@@ -93,7 +95,7 @@ async def _merge_results(
     if len(results) == 1:
         return results[0]
     
-    print(f"[*] Merging {len(results)} chunk results for mode {mode.value}")
+    logger.info("Merging chunk results", extra={"chunk_count": len(results), "mode": mode.value})
     
     # Algemene Voorwaarden merge
     # Algemene Voorwaarden, Zakelijke Onderhandelingen & Web Deals merge (delen zelfde structuur)
@@ -205,19 +207,19 @@ async def analyze_document(
     """
     # Token check
     token_count = count_tokens(text)
-    print(f"[*] Analyse gestart. Mode: {mode.value}, Tokens: {token_count}")
+    logger.info("Analysis started", extra={"mode": mode.value, "token_count": token_count})
     
     try:
         # Check if chunking needed
         if token_count > 15000:
-            print(f"[*] Document groot (>{token_count} tokens). Chunking wordt toegepast.")
+            logger.info("Chunking large document", extra={"token_count": token_count})
             chunks = split_text(text, max_tokens=15000, overlap=500)
-            print(f"[*] Document opgesplitst in {len(chunks)} chunks")
+            logger.info("Document split into chunks", extra={"chunk_count": len(chunks)})
             
             # MAP: Analyze each chunk
             chunk_results = []
             for i, chunk in enumerate(chunks):
-                print(f"[*] Analyseren chunk {i+1}/{len(chunks)}")
+                logger.info("Analyzing chunk", extra={"chunk_number": i + 1, "chunk_count": len(chunks)})
                 result = await _analyze_chunk(chunk, mode, context)
                 chunk_results.append(result)
             
@@ -231,24 +233,24 @@ async def analyze_document(
             return json.dumps(result, ensure_ascii=False)
         
     except RateLimitError as e:
-        print(f"[!] Rate limit bereikt: {e}")
+        logger.warning("OpenAI rate limit reached", exc_info=True)
         raise ValueError(
             "De OpenAI API rate limit is bereikt. "
             "Probeer het over enkele minuten opnieuw."
         )
     
     except APIConnectionError as e:
-        print(f"[!] Verbindingsfout met OpenAI API: {e}")
+        logger.error("OpenAI connection failed", exc_info=True)
         raise ValueError(
             "Kan geen verbinding maken met de OpenAI API. "
             "Controleer je internetverbinding en probeer opnieuw."
         )
     
     except APIError as e:
-        print(f"[!] OpenAI API fout: {e}")
+        logger.error("OpenAI API request failed", exc_info=True)
         raise ValueError(
             f"Er is een fout opgetreden bij de OpenAI API: {str(e)}"
         )
     except (json.JSONDecodeError, TypeError) as e:
-        print(f"[!] Ongeldige AI-response: {e}")
+        logger.error("OpenAI returned invalid response", exc_info=True)
         raise ValueError("De AI-provider retourneerde een ongeldig analyseformaat.")
