@@ -18,6 +18,7 @@ def test_health_and_modes_routes_are_registered():
 
     assert health.status_code == 200
     assert health.json()["status"] == "healthy"
+    assert health.headers["x-request-id"]
     assert modes.status_code == 200
     assert len(modes.json()["modes"]) == 7
 
@@ -57,7 +58,7 @@ def test_chat_request_rejects_unknown_message_role():
         ChatRequest(
             question="Wat staat hier?",
             context_text="Een document",
-            history=[{"role": "unknown", "content": "test"}],
+            history=[{"role": "unknown", "content": "test"}],  # type: ignore[list-item]
         )
 
 
@@ -75,6 +76,7 @@ def test_privacy_result_gets_dashboard_fields_without_losing_details():
     assert result["privacy_score"] == 7
     assert result["summary"] == ["Geen bewaartermijn gevonden"]
     assert result["red_flags"][0]["risk_type"] == "compliance_gap"
+    assert result["red_flags"][0]["action_required"] == "Voeg een bewaartermijn toe"
     assert result["recommendations"] == ["Voeg een bewaartermijn toe"]
 
 

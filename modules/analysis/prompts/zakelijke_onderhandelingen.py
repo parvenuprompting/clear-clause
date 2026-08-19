@@ -38,7 +38,8 @@ FORMAT JE ANTWOORD ALS JSON:
       "clause_citation": "Citaat uit tekst",
       "risk_type": "Financieel / Juridisch / Operationeel",
       "explanation": "Duidelijke uitleg waarom dit nadelig is",
-      "severity_score": 1-10
+       "severity_score": 1-10,
+       "action_required": "Concrete onderhandelingsactie"
     }
   ],
   "suggestions": ["Strategische tip 1", "Tegenvoorstel 2", ...],
@@ -50,4 +51,5 @@ BELANGRIJK:
 - Wees zakelijk, scherp en commercieel gedreven.
 - Focus op winstmaximalisatie en risicominimalisatie voor de gebruiker.
 - Gebruik heldere, directe taal.
+- Iedere red flag moet een exacte quote uit de bron bevatten. Zonder quote geen red flag.
 """

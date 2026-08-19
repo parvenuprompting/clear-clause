@@ -85,6 +85,7 @@ interface AnalysisPDFProps {
             risk_type: string;
             explanation: string;
             severity_score: number;
+            action_required: string;
         }>;
         suggestions: string[];
         privacy_score: number;
@@ -139,6 +140,7 @@ export const AnalysisPDF: React.FC<AnalysisPDFProps> = ({ data, documentName = "
                                 <Text style={[styles.text, { fontSize: 9, fontStyle: 'italic' }]}>
                                     &quot;{flag.clause_citation}&quot;
                                 </Text>
+                                <Text style={styles.text}>Wat nu: {flag.action_required}</Text>
                             </View>
                         ))}
                     </View>

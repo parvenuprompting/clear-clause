@@ -1,11 +1,16 @@
 // @vitest-environment jsdom
 
 import "@testing-library/jest-dom/vitest";
+import React from "react";
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { ResultatenDashboard } from "@/components/ResultatenDashboard";
 import type { AnalysisResponse } from "@/lib/api";
+
+vi.mock("@/components/export/ExportResultaten", () => ({
+  ExportResultaten: () => React.createElement("button", { type: "button" }, "Download PDF"),
+}));
 
 const baseResult = {
   summary: ["Een heldere samenvatting"],

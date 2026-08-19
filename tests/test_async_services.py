@@ -80,3 +80,21 @@ def test_large_documents_analyze_chunks_concurrently(monkeypatch):
 
     assert sorted(analyzed_chunks) == ["one", "two"]
     assert json.loads(result)["chunks"] == [{"chunk": "one"}, {"chunk": "two"}]
+
+
+def test_merge_results_rejects_empty_summary_provider_content(monkeypatch):
+    monkeypatch.setattr(service, "openai_client", fake_client(None))
+    result = {
+        "summary": ["Punt"],
+        "red_flags": [],
+        "suggestions": [],
+        "privacy_score": 5,
+    }
+
+    with pytest.raises(ValueError, match="geen samenvatting"):
+        asyncio.run(
+            service._merge_results(
+                [result, result],
+                AnalysisMode.ALGEMENE_VOORWAARDEN,
+            )
+        )

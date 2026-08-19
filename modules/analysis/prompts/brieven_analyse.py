@@ -29,6 +29,7 @@ Je MOET antwoorden in de gevraagde JSON-structuur (LetterAnalysisResponse):
 - legal_claims: Lijst van de juridische gronden van de verzender
 - risk_assessment: Potentiële juridische risico's
 - response_strategy: Aanbevolen aanpak voor reactie
+- Onderbouw juridische claims altijd met een exacte quote uit de brief. Zonder quote mag de claim niet als vastgesteld worden gepresenteerd.
 
 NEGATIVE CONSTRAINT:
 Genereer GEEN inleidende of afsluitende tekst, geef uitsluitend de gevraagde JSON-structuur terug.

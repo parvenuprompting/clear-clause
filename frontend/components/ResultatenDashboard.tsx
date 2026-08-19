@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { CheckCircle2, AlertTriangle, Lightbulb, Shield, Copy, Check, Briefcase, Tag } from "lucide-react";
 import type { AnalysisResponse } from "@/lib/api";
 import { ChatSection } from "./ChatSection";
+import { ExportResultaten } from "./export/ExportResultaten";
 
 
 
@@ -215,24 +216,17 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                             <CheckCircle2 className="h-5 w-5 text-green-400" />
                             <CardTitle className="text-white">Samenvatting</CardTitle>
                         </div>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleCopySummary}
-                            className="gap-2 border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all"
-                        >
-                            {copied ? (
-                                <>
-                                    <Check className="h-4 w-4" />
-                                    Gekopieerd!
-                                </>
-                            ) : (
-                                <>
-                                    <Copy className="h-4 w-4" />
-                                    Kopieer
-                                </>
-                            )}
-                        </Button>
+                        <div className="flex flex-wrap justify-end gap-2">
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={handleCopySummary}
+                                className="gap-2 border border-white/10 bg-white/5 text-white/90 hover:bg-white/10 hover:text-white transition-all"
+                            >
+                                {copied ? <><Check className="h-4 w-4" />Gekopieerd!</> : <><Copy className="h-4 w-4" />Kopieer</>}
+                            </Button>
+                            <ExportResultaten data={data} />
+                        </div>
                     </div>
                     <CardDescription className="text-white/70">De belangrijkste punten uit het document</CardDescription>
                 </CardHeader>
@@ -273,15 +267,22 @@ export function ResultatenDashboard({ data, analyzedText, mode }: ResultatenDash
                             <TableBody>
                                 {data.red_flags.map((flag, index) => (
                                     <TableRow key={index} className="border-white/10 hover:bg-white/5">
-                                        <TableCell className="font-mono text-xs max-w-xs truncate text-slate-200">
-                                            {flag.clause_citation}
+                                        <TableCell className="max-w-xs text-slate-200">
+                                            <blockquote className="border-l-2 border-red-400 pl-3 font-mono text-xs italic">
+                                                &quot;{flag.clause_citation}&quot;
+                                            </blockquote>
                                         </TableCell>
                                         <TableCell>
                                             <code className="text-xs bg-white/10 text-white px-2 py-1 rounded border border-white/10">
                                                 {flag.risk_type}
                                             </code>
                                         </TableCell>
-                                        <TableCell className="text-slate-200 break-words whitespace-normal min-w-[300px]">{flag.explanation}</TableCell>
+                                        <TableCell className="text-slate-200 break-words whitespace-normal min-w-[300px]">
+                                            <p>{flag.explanation}</p>
+                                            <p className="mt-3 rounded-md border border-orange-400/20 bg-orange-400/10 p-2 text-sm text-orange-100">
+                                                <strong>Wat nu?</strong> {flag.action_required}
+                                            </p>
+                                        </TableCell>
                                         <TableCell className="text-right whitespace-nowrap w-[150px] min-w-[150px]">
                                             <Badge className={getSeverityColor(flag.severity_score) + " text-white border-none"}>
                                                 {flag.severity_score}/10 - {getSeverityLabel(flag.severity_score)}

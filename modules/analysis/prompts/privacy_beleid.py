@@ -27,6 +27,7 @@ Je MOET antwoorden in de gevraagde JSON-structuur (PrivacyAnalysisResponse):
 - user_rights: Lijst van expliciet genoemde rechten
 - compliance_gaps: Ontbrekende AVG elementen
 - recommendations: Concrete acties (bijv. "Maak gebruik van je recht op verwijdering")
+- Onderbouw ieder compliance-gap met een exacte bronpassage. Als die passage ontbreekt, benoem het als "niet vastgesteld".
 
 NEGATIVE CONSTRAINT:
 Genereer GEEN inleidende of afsluitende tekst, geef uitsluitend de gevraagde JSON-structuur terug.

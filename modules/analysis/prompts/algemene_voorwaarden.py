@@ -29,7 +29,9 @@ Gebruik EXACT deze keys voor 'risk_type':
 BELANGRIJKE INSTRUCTIES VOOR OUTPUT:
 1. **Red Flags**: 
    - Wees streng. Een score van 1/10 is alleen voor triviale zaken. 
-   - 8-10/10 voor zaken die geld kosten, rechten inperken of data verkopen.
+    - 8-10/10 voor zaken die geld kosten, rechten inperken of data verkopen.
+    - Geef voor iedere red flag een exacte quote in 'clause_citation' en een concrete 'action_required'.
+    - Als een risico niet met een exacte passage kan worden onderbouwd, neem het niet op.
 2. **Samenvatting**: 
    - Geef geen algemene beschrijving. Geef de FEITEN. (bijv: "Je geeft jouw auteursrecht weg", niet "Er staan regels over IP in").
 3. **Taal**:

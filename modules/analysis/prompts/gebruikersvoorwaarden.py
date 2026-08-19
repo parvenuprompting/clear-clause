@@ -24,6 +24,7 @@ Identificeer:
 - fairness_score: balans tussen platform en gebruiker (0-10)
 - red_flags: oneerlijke of ongebruikelijke clausules
 - recommendations: verbeterpunten voor gebruikersbescherming
+- Onderbouw iedere red flag met een exacte bronpassage. Voeg bij iedere red flag een concrete actie toe in de aanbevelingen.
 
 NEGATIVE CONSTRAINT:
 Genereer GEEN inleidende of afsluitende tekst, geef uitsluitend de gevraagde JSON-structuur terug.

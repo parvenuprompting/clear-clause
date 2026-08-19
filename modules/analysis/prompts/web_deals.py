@@ -38,7 +38,8 @@ FORMAT JE ANTWOORD ALS JSON:
       "clause_citation": "Citaat of omschrijving van techniek",
       "risk_type": "Verborgen Kosten / Misleiding / Dark Pattern",
       "explanation": "Waarom dit nadelig is voor de consument",
-      "severity_score": 1-10
+       "severity_score": 1-10,
+       "action_required": "Concrete actie voor de consument"
     }
   ],
   "suggestions": ["Actiepunt 1", "Check 2", ...],
@@ -50,4 +51,5 @@ BELANGRIJK:
 - Wees de advocaat van de consument.
 - Wees kritisch op 'vandaag-alleen' aanbiedingen.
 - Gebruik nuchtere, waarschuwende taal.
+- Iedere red flag moet een exacte quote uit de bron bevatten. Zonder quote geen red flag.
 """

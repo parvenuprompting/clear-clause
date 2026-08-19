@@ -2,10 +2,12 @@ import json
 import logging
 import os
 import sys
+from contextvars import ContextVar
 from datetime import datetime, timezone
 
 
 LOGGER_NAME = "clearclause"
+request_id_context: ContextVar[str] = ContextVar("request_id", default="-")
 
 
 class JsonFormatter(logging.Formatter):
@@ -17,6 +19,7 @@ class JsonFormatter(logging.Formatter):
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
+            "request_id": request_id_context.get(),
         }
         context_keys = {
             "chunk_count",

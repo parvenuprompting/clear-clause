@@ -10,6 +10,7 @@ class RedFlag(BaseModel):
     risk_type: str = Field(description="Type risico uit het Dark Pattern lexicon")
     explanation: str = Field(description="Begrijpelijke uitleg van het risico")
     severity_score: int = Field(ge=1, le=10, description="Ernst score 1-10")
+    action_required: str = Field(description="Concrete actie die de gebruiker nu kan nemen")
 
 class AnalysisResponse(BaseModel):
     summary: List[str] = Field(max_length=5, description="Maximaal 5 kernpunten")

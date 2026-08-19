@@ -3,6 +3,7 @@ export interface RedFlag {
     risk_type: string;
     explanation: string;
     severity_score: number;
+    action_required: string;
 }
 
 export interface UserRightStatus {

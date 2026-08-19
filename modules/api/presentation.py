@@ -10,8 +10,14 @@ def add_presentational_fields(result: dict[str, Any], mode: AnalysisMode) -> dic
     if mode == AnalysisMode.PRIVACY_BELEID:
         result.setdefault("summary", result.get("compliance_gaps", [])[:5])
         result.setdefault("red_flags", [
-            {"clause_citation": "GDPR compliance gap", "risk_type": "compliance_gap", "explanation": gap, "severity_score": 5}
-            for gap in result.get("compliance_gaps", [])
+            {
+                "clause_citation": "GDPR compliance gap",
+                "risk_type": "compliance_gap",
+                "explanation": gap,
+                "severity_score": 5,
+                "action_required": (result.get("recommendations", []) + ["Laat dit onderdeel aanvullen."])[index],
+            }
+            for index, gap in enumerate(result.get("compliance_gaps", []))
         ])
         result.setdefault("suggestions", result.get("recommendations", []))
         result.setdefault("privacy_score", result.get("gdpr_compliance_score", 0))
@@ -19,8 +25,14 @@ def add_presentational_fields(result: dict[str, Any], mode: AnalysisMode) -> dic
     elif mode == AnalysisMode.GEBRUIKERSVOORWAARDEN:
         result.setdefault("summary", result.get("restrictions", [])[:5])
         result["red_flags"] = [
-            {"clause_citation": "Gebruikersvoorwaarden", "risk_type": "user_rights", "explanation": flag, "severity_score": 5}
-            for flag in result.get("red_flags", [])
+            {
+                "clause_citation": "Gebruikersvoorwaarden",
+                "risk_type": "user_rights",
+                "explanation": flag,
+                "severity_score": 5,
+                "action_required": (result.get("recommendations", []) + ["Laat deze clausule juridisch beoordelen."])[index],
+            }
+            for index, flag in enumerate(result.get("red_flags", []))
             if isinstance(flag, str)
         ]
         result.setdefault("suggestions", result.get("recommendations", []))
@@ -29,7 +41,13 @@ def add_presentational_fields(result: dict[str, Any], mode: AnalysisMode) -> dic
     elif mode == AnalysisMode.BRIEVEN_ANALYSE:
         result.setdefault("summary", result.get("action_points", [])[:5])
         result.setdefault("red_flags", [
-            {"clause_citation": "Juridische claim", "risk_type": "legal_claim", "explanation": claim, "severity_score": result.get("urgency_level", 5)}
+            {
+                "clause_citation": "Juridische claim",
+                "risk_type": "legal_claim",
+                "explanation": claim,
+                "severity_score": result.get("urgency_level", 5),
+                "action_required": result.get("response_strategy", "Laat deze claim controleren."),
+            }
             for claim in result.get("legal_claims", [])
         ])
         result.setdefault("suggestions", [result.get("response_strategy", "")])

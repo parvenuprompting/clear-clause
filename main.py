@@ -1,10 +1,11 @@
 import os
+import uuid
 
 from dotenv import load_dotenv
 
 load_dotenv()
 
-from modules.shared.logging import configure_logging
+from modules.shared.logging import configure_logging, request_id_context
 
 configure_logging()
 
@@ -16,6 +17,18 @@ from modules.api.routes import router
 
 
 app = FastAPI(title="ClearClause Suite API")
+
+
+@app.middleware("http")
+async def add_request_id(request: Request, call_next):
+    request_id = str(uuid.uuid4())
+    context_token = request_id_context.set(request_id)
+    try:
+        response = await call_next(request)
+        response.headers["X-Request-ID"] = request_id
+        return response
+    finally:
+        request_id_context.reset(context_token)
 
 
 @app.middleware("http")
